@@ -1,9 +1,37 @@
 // npx tsc parse.ts
 // node parse.js
 
-const readline = require('readline');
-const fs = require('fs');
-const path = require('path');
+const readline = require('readline')
+const fs = require('fs')
+const path = require('path')
+const http = require('http')
+const opn = require('opn');
+
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    
+    res.write(`
+        <style>
+            * {
+                margin: 0;
+            }
+        </style>
+    `)
+
+    res.write(`
+        <p>localhost:8080/${req.url}</p>
+    `);
+
+    if (req.url == '/listdir') {
+        res.write(`
+        <p><b>listdir</b> - List all files in a specified directory.</p>
+        <br>
+        <b><p>Directory:</b> (string)</p>
+        `)
+    }
+
+    res.end();
+}).listen(8080);
 
 const writeReturnErr = function(fileName: string, newdata: string, add: boolean) {
     fs.readFile(fileName, 'utf8', function (err, data) {
@@ -69,7 +97,21 @@ const handleCommand = function(cmd: string) {
             } catch (err) {
                 console.error(err);
             }
-        } 
+        } else if ($[0] == "listdir") {
+            fs.readdir(getArgs(cmd, 2, 0), (err, files) => {
+                if (err) {
+                    console.log(err)
+                }
+
+                files.forEach(file => {
+                    console.log(file)
+                });
+
+                console.log("Open localhost//listdir for more information on this command.")
+            });
+        } else if ($[0] == "mk_file") {
+            fs.writeFile(getArgs(cmd, 2, 0), "")
+        }
         // ===============
         // IF NO CMD
         // ===============

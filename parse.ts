@@ -7,9 +7,9 @@ const path = require('path');
 
 const writeReturnErr = function(fileName: string, newdata: string, add: boolean) {
     fs.readFile(fileName, 'utf8', function (err, data) {
-        if (err) {
+        /* if (err) {
             return
-        }
+        } */
 
         let $ = newdata
         if (add) {
@@ -33,23 +33,10 @@ const getArgs = function(cmd: string, limit: number, split: number) {
 const handleCommand = function(cmd: string) {
     let $ = cmd.split(" ")
     if ($) {
-        if ($[0] == "log") {
-            $ = cmd.split($[0])
-            let returned = $[1].slice(1)
-
-            fs.readFile('log.cmdreturn', 'utf8', function (err, data) {
-                if (err) {
-                    fs.writeFile('log.cmdreturn', `["${returned}"], `, function (err) {
-                        if (err) return console.log(err)
-                    })
-                }
-        
-                let newData = data += `["${returned}"], `
-                fs.writeFile('log.cmdreturn', newData, function (err) {
-                    if (err) return console.log(err)
-                })
-            })
-        } else if ($[0] == "dirname") {
+        // ===============
+        // FILE SYSTEM
+        // ===============
+        if ($[0] == "dirname") {
             console.log(__dirname)
         } else if ($[0] == "read") {
             $ = cmd.split($[0])
@@ -69,14 +56,24 @@ const handleCommand = function(cmd: string) {
         } else if ($[0] == "write") {
             let $name = getArgs(cmd, 2, 0).split(" ")[0]
             let $data = getArgs(cmd, 2, 1)
-            let $add = false
 
-            if (getArgs(cmd, 2, 0).split(" ")[1] == "true") {
-                $add = true
+            writeReturnErr($name, $data, false)
+        } else if ($[0] == "write_add") {
+            let $name = getArgs(cmd, 2, 0).split(" ")[0]
+            let $data = getArgs(cmd, 2, 1)
+
+            writeReturnErr($name, $data, true)
+        } else if ($[0] == "rm_file") {
+            try {
+                fs.unlinkSync(getArgs(cmd, 2, 0));
+            } catch (err) {
+                console.error(err);
             }
-
-            writeReturnErr($name, $data, $add)
-        } else {
+        } 
+        // ===============
+        // IF NO CMD
+        // ===============
+        else {
             console.log("> Command not recognized.")
         }
     }

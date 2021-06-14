@@ -208,8 +208,15 @@ const parseVariables = function($content: string, $calling: string = "null") {
     let words = $content.split(" ")
 
     for (let word of words) {
-        if (getVariable(word, $calling) != null) {
-            $content = $content.replace(word, getVariable(word, $calling).val)
+        let val = getVariable(word, $calling)
+        if (val != null) {
+            if (val.function == "null") {
+                $content = $content.replace(word, getVariable(word, $calling).val)
+            } else {
+                if ($calling = val.function) {
+                    $content = $content.replace(word, getVariable(word, $calling).val)
+                }
+            }
         }
     }
 
@@ -217,21 +224,31 @@ const parseVariables = function($content: string, $calling: string = "null") {
 }
 
 const makeVariable = function($name: string, $value: string, $function) {
-    // if ($name.split(" ") == false) {
+    if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
             variables.push(
                 {
                     name: 'val:' + $name.split(" = ")[0],
                     val: $value,
-                    function: $function || "null"
+                    function: "null"
                 }
             )
         } else {
             getVariable('val:' + $name.split(" = ")[0], $function).val = $value
         }
-    // } else {
-        // return console.log("> SyntaxError: Variable names cannot contain the unique variable identifier.")
-    // }
+    } else {
+        if (getVariable('$:' + $name.split(" = ")[0], $function) == null) {
+            variables.push(
+                {
+                    name: '$:' + $name.split(" = ")[0],
+                    val: $value,
+                    function: $function
+                }
+            )
+        } else {
+            getVariable('$:' + $name.split(" = ")[0], $function).val = $value
+        }
+    }
 }
 
 // main
@@ -425,6 +442,20 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
                 if (parseInt($_[0]) && parseInt($_[1])) {
                     Math.pow(parseInt($_[0]), parseInt($_[1]))
                 }
+            }
+        }
+        // ===============
+        // DEBUG CMDS
+        // ===============
+        else if ($[0] == "debug") {
+            let $_ = getArgs(cmd, 2, 0)
+
+            if ($_ == "variables") {
+                console.log(variables)
+            } else if ($_ == "functions") {
+                console.log(functions)
+            } else if ($_ == "within") {
+                console.log(callingFrom)
             }
         }
         // ===============

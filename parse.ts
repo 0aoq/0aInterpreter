@@ -46,24 +46,29 @@ http.createServer(function (req, res) {
 
     if (req.url == '/api') {
         res.write(`
+        <br>
         <p><b>listdir</b> - List all files in a specified directory.</p>
         <br>
         <b><p>Directory:</b> (string)</p>
+        <br>
         <hr>
         `)
 
         res.write(`
         
+        <br>
         <p><b>val</b> - Create a new global variable that can be accessed from any instance that requires it.</p>
         <br>
         <b><p>name:</b> (string)</p>
         <b><p>value:</b> (any)</p>
+        <br>
         <hr>
         
         `)
 
         res.write(`
         
+        <br>
         <p><b>func</b> - Create a new global function that can be accessed from any instance that requires it.</p>
         <br>
         <b><p>name:</b> (string)</p>
@@ -73,60 +78,72 @@ http.createServer(function (req, res) {
 func test{/s}log $:__paramTest1
 run test {/args} __paramTest1 = testing123 {/arg} 
         </code></pre>
+        <br>
         <hr>
         
         `)
 
         res.write(`
         
+        <br>
         <p><b>read</b> - Read a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
+        <br>
         <hr>
         
         `)
 
         res.write(`
         
+        <br>
         <p><b>write</b> - Write to a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
+        <br>
         <hr>
         
         `)
 
         res.write(`
         
+        <br>
         <p><b>write_add</b> - Add to a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
+        <br>
         <hr>
         
         `)
 
         res.write(`
         
+        <br>
         <p><b>rm</b> - Remove a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
+        <br>
         <hr>
         
         `)
 
         res.write(`
         
+        <br>
         <p><b>mk</b> - Make a directory/file</p>
         <br>
         <b><p>includedir:</b> (boolean)</p>
         <b><p>path/name:</b> (string)</p>
+        <br>
         <hr>
         
         `)
 
         res.write(`
         
+        <br>
         <p><b>cd</b> - Get current working directory</p>
         <br>
         <hr>
@@ -135,12 +152,14 @@ run test {/args} __paramTest1 = testing123 {/arg}
 
         res.write(`
         
+        <br>
         <p><b>repeat</b> - Run a loop</p>
         <br>
         <b><p>actions:</b> (0a)</p>
         <b><p>every:</b> (number) [Pause thread time between loops (seconds)]</p>
         <b><p>i:</b> (number) [Amount of times to loop]</p>
-        <pre><code>repeat.0a repeat log test => every 1 i 4</code></pre>
+        <pre><code>repeat log test => every 1 i 4</code></pre>
+        <br>
         <hr>
         
         `)
@@ -281,6 +300,80 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
     let $ = cmd.split(" ")
 
     if ($) {
+        // ===============
+        // UTILITY
+        // ===============
+        if ($[0] == "val") {
+            let $name = getArgs(cmd, 2, 0)
+            let $value = $name.split(" = ")[1]
+
+            makeVariable($name, $value, callingFrom || null)
+        } else if ($[0] == "repeat") {
+            // write repeat.0a repeat log test => every 1 i 4
+            $ = cmd.split(" ")
+            let returned = getArgs(cmd, 2, 0).split(" => every ")
+            let $do = returned[0]
+            let $amount = returned[1].split("i")[1]
+            let $every = returned[1].split("i")[0]
+
+            async function worker() {
+                var i
+                for (i = 0; i < $amount; i++) {
+                    handleCommand($do)
+                    await sleep($every)
+                } 
+            }
+
+            worker()
+        // ===============
+        // FUNCTIONS
+        // ===============
+        } else if ($[0] == "func") {
+            // func test{/s}log Hello, World!{/and}log New line
+            // run test
+
+            let $name = getArgs(cmd, 2, 0).split("{/s}")[0]
+            let $run = getArgs(cmd, 2, 0).split("{/s}")[1]
+
+            if (getFunction($name) == null && $name != "null") {
+                functions.push({
+                    name: $name,
+                    run: $run.split(" {/and} ")
+                })
+            } else {
+                console.log(`> Syntax error: function has already been declared, or the name is reserved.`)
+            }
+        } else if ($[0] == "run") {
+            let returned = cmd.split(" ")[1]
+
+            if (returned == null) {return console.log("> SyntaxError: function doesn't exist.")}
+
+            let args = cmd.split(" {/args} ")
+
+            if (args) {
+                args = args[1].split(" {/arg} ")
+                returned = returned.split(" {/args} ")[0]
+                for (let arg of args) {
+                    let $name = arg.split(" = ")[0]
+                    let $value = arg.split(" = ")[1]
+    
+                    makeVariable($name, $value, getFunction(returned).name || null)
+                }
+            }
+
+            for (let command of getFunction(returned).run) {
+                handleCommand(parseVariables(command), getFunction(returned).name)
+            }
+        }
+
+        // =================
+        // VARIABLES ALLOWED
+        // =================
+
+        for (let $_ of $) {
+            $[$_] = $_.replace($_, parseVariables($_, callingFrom))
+        }
+
         if ($[0] == "log") {
             let returned = parseVariables(cmd, callingFrom)
             console.log(getArgs(returned, 2, 0))
@@ -290,8 +383,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
         // ===============
         else if ($[0] == "cd") {
             console.log(getVariable("val:$cd").val)
-        }
-        else if ($[0] == "read") {
+        } else if ($[0] == "read") {
             let returned = parseVariables(getArgs(cmd, 2, 0), callingFrom)
             console.log(returned)
 
@@ -376,71 +468,6 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
             }
         }
         // ===============
-        // UTILITY
-        // ===============
-        else if ($[0] == "val") {
-            let $name = getArgs(cmd, 2, 0)
-            let $value = $name.split(" = ")[1]
-
-            makeVariable($name, $value, callingFrom || null)
-        } else if ($[0] == "repeat") {
-            // write repeat.0a repeat log test => every 1 i 4
-            $ = cmd.split(" ")
-            let returned = getArgs(cmd, 2, 0).split(" => every ")
-            let $do = returned[0]
-            let $amount = returned[1].split("i")[1]
-            let $every = returned[1].split("i")[0]
-
-            async function worker() {
-                var i
-                for (i = 0; i < $amount; i++) {
-                    handleCommand($do)
-                    await sleep($every)
-                } 
-            }
-
-            worker()
-        // ===============
-        // FUNCTIONS
-        // ===============
-        } else if ($[0] == "func") {
-            // func test{/s}log Hello, World!{/and}log New line
-            // run test
-
-            let $name = getArgs(cmd, 2, 0).split("{/s}")[0]
-            let $run = getArgs(cmd, 2, 0).split("{/s}")[1]
-
-            if (getFunction($name) == null && $name != "null") {
-                functions.push({
-                    name: $name,
-                    run: $run.split(" {/and} ")
-                })
-            } else {
-                console.log(`> Syntax error: function has already been declared, or the name is reserved.`)
-            }
-        } else if ($[0] == "run") {
-            let returned = cmd.split(" ")[1]
-
-            if (returned == null) {return console.log("> SyntaxError: function doesn't exist.")}
-
-            let args = cmd.split(" {/args} ")
-
-            if (args) {
-                args = args[1].split(" {/arg} ")
-                returned = returned.split(" {/args} ")[0]
-                for (let arg of args) {
-                    let $name = arg.split(" = ")[0]
-                    let $value = arg.split(" = ")[1]
-    
-                    makeVariable($name, $value, getFunction(returned).name || null)
-                }
-            }
-
-            for (let command of getFunction(returned).run) {
-                handleCommand(parseVariables(command), getFunction(returned).name)
-            }
-        }
-        // ===============
         // MATHEMATICS
         // ===============
         else if ($[0] == "calc") {
@@ -498,8 +525,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
             if (getVariable('val:' + returned, callingFrom) != null) {
                 getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             } else {
-                if (cmd == "/\r?\n/") {return}
-                console.log("[!] Command not recognized.")
+                return
             }
         }
     }

@@ -5,7 +5,6 @@ const readline = require('readline')
 const fs = require('fs')
 const path = require('path')
 const http = require('http')
-const opn = require('opn');
 
 http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
@@ -28,12 +27,21 @@ http.createServer(function (req, res) {
         <br>
         <b><p>Directory:</b> (string)</p>
         `)
+    } else if (req.url == '/val') {
+        res.write(`
+        <p><b>val</b> - Create a new global variable that can be accessed from any instance that requires it.</p>
+        <br>
+        <b><p>name:</b> (string)</p><br>
+        <b><p>value:</b> (any)</p>
+        `)
     }
 
     res.end();
 }).listen(8080);
 
 let variables = []
+let functions = []
+let indexed = []
 
 const $check = function(expr){
     const holder = []
@@ -84,33 +92,83 @@ const getArgs = function(cmd: string, limit: number, split: number) {
     return returned
 }
 
-const getVariable = function($name: string) {
-    for (let variable of variables) {
-        if (variable.name == $name) {
-            return variable
+// helpers
+
+const getVariable = function($name: string, $function: string = "null") {
+    if ($function == "null") {
+        for (let variable of variables) {
+            if (variable.name == $name) {
+                return variable
+            }
+        }
+    } else {
+        for (let variable of variables) {
+            if (variable.name == $name && $function == variable.function) {
+                return variable
+            }
         }
     }
 }
 
-const handleCommand = function(cmd: string) {
+const getFunction = function($name: string) {
+    for (let func of functions) {
+        if (func.name == $name) {
+            return func
+        }
+    }
+}
+
+const parseVariables = function($content: string, $calling: string = "null") {
+    let words = $content.split(" ")
+
+    for (let word of words) {
+        if (getVariable(word, $calling) != null) {
+            $content = $content.replace(word, getVariable(word, $calling).val)
+        }
+    }
+
+    return $content
+}
+
+const makeVariable = function($name: string, $value: string, $function) {
+    // if ($name.split(" ") == false) {
+        if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
+            variables.push(
+                {
+                    name: 'val:' + $name.split(" = ")[0],
+                    val: $value,
+                    function: $function || "null"
+                }
+            )
+        } else {
+            getVariable('val:' + $name.split(" = ")[0], $function).val = $value
+        }
+    // } else {
+        // return console.log("> SyntaxError: Variable names cannot contain the unique variable identifier.")
+    // }
+}
+
+// main
+
+const handleCommand = function(cmd: string, callingFrom: string = "null") {
     let $ = cmd.split(" ")
+
     if ($) {
-        if ($[0] == "log") {
-            $ = cmd.split($[0])
-            let returned = $[1].slice(1)
-            
-            if (getVariable(returned) != null) {
-                console.log(getVariable(returned).val)
-            } else {
-                console.log(returned)
+        console.log(cmd)
+        for (let $_ of $) {
+            if ($_ == "cd") {
+                cmd.replace($_, getVariable('val:$_[dirname]'))
             }
+        }
+
+        if ($[0] == "log") {
+            let returned = parseVariables(cmd, callingFrom)
+            console.log(getArgs(returned, 2, 0))
         } 
         // ===============
         // FILE SYSTEM
         // ===============
-        else if ($[0] == "dirname") {
-            console.log(__dirname)
-        } else if ($[0] == "read") {
+        else if ($[0] == "read") {
             $ = cmd.split($[0])
             let returned = $[1].slice(1)
 
@@ -150,8 +208,6 @@ const handleCommand = function(cmd: string) {
                 files.forEach(file => {
                     console.log(file)
                 });
-
-                console.log("Open localhost//listdir for more information on this command.")
             });
         } else if ($[0] == "mk") {
             if (getArgs(cmd, 2, 0) == "includedir") {
@@ -168,6 +224,7 @@ const handleCommand = function(cmd: string) {
                 }
             })
         } else if ($[0] == "exec") {
+            $ = cmd.split(" ")
             $ = cmd.split($[0])
             let returned = $[1].slice(1)
 
@@ -177,13 +234,15 @@ const handleCommand = function(cmd: string) {
                         console.log("Recent command returned an error.")
                     }
     
-                    // split the contents by new line
-                    const lines = data.split(/\r?\n/);
-    
-                    // print all lines
-                    lines.forEach((line) => {
-                        handleCommand(line)
-                    });
+                    if (data) {
+                        // split the contents by new line
+                        const lines = data.split(/\r?\n/);
+        
+                        // print all lines
+                        lines.forEach((line) => {
+                            handleCommand(line)
+                        });
+                    }
                 })
             } else {
                 console.log("> Error: file must be a .0a file!")
@@ -196,46 +255,118 @@ const handleCommand = function(cmd: string) {
             let $name = getArgs(cmd, 2, 0)
             let $value = $name.split(" = ")[1]
 
-            if (getVariable('val:' + $name.split(" = ")[0]) == null) {
-                variables.push(
-                    {
-                        name: 'val:' + $name.split(" = ")[0],
-                        val: $value
-                    }
-                )
-            } else {
-                console.log(`> Syntax error: variable has already been declared. Please set it with "${$name.split(" = ")[0]} = ${$value}"`)
-            }
+            makeVariable($name, $value, callingFrom || null)
         } else if ($[0] == "repeat") {
+            // write repeat.0a repeat log test => every 1 i 4
             $ = cmd.split(" ")
-            let returned = getArgs(cmd, 2, 0).split(" => wait ")
+            let returned = getArgs(cmd, 2, 0).split(" => every ")
             let $do = returned[0]
-            let $every = returned[1]
+            let $amount = returned[1].split("i")[1]
+            let $every = returned[1].split("i")[0]
 
             async function worker() {
                 var i
-                for (i = 0; i < $every; i++) {
+                for (i = 0; i < $amount; i++) {
                     handleCommand($do)
                     await sleep($every)
                 } 
             }
 
             worker()
+        // ===============
+        // FUNCTIONS
+        // ===============
+        } else if ($[0] == "func") {
+            // func test{/s}log Hello, World!{/and}log New line
+            // run test
+
+            let $name = getArgs(cmd, 2, 0).split("{/s}")[0]
+            let $run = getArgs(cmd, 2, 0).split("{/s}")[1]
+
+            if (getFunction($name) == null && $name != "null") {
+                functions.push({
+                    name: $name,
+                    run: $run.split(" {/and} ")
+                })
+            } else {
+                console.log(`> Syntax error: function has already been declared, or the name is reserved.`)
+            }
+        } else if ($[0] == "run") {
+            let returned = cmd.split(" ")[1]
+
+            if (returned == null) {return console.log("> SyntaxError: function doesn't exist.")}
+
+            let args = cmd.split(" {/args} ")
+
+            if (args) {
+                args = args[1].split(" {/arg} ")
+                returned = returned.split(" {/args} ")[0]
+                for (let arg of args) {
+                    let $name = arg.split(" = ")[0]
+                    let $value = arg.split(" = ")[1]
+    
+                    makeVariable($name, $value, getFunction(returned).name || null)
+                }
+            }
+
+            for (let command of getFunction(returned).run) {
+                handleCommand(parseVariables(command), getFunction(returned).name)
+            }
+        }
+        // ===============
+        // MATHEMATICS
+        // ===============
+        else if ($[0] == "calc") {
+            let $_ = getArgs(cmd, 2, 0).split(" with ")[0].split(" ")
+            let $operation = getArgs(cmd, 2, 0).split(" with ")[1]
+
+            if ($operation == "+") {
+                if (parseInt($_[0]) && parseInt($_[1])) {
+                    console.log(parseInt($_[0]) + parseInt($_[1]))
+                }
+            } else if ($operation == "-") {
+                if (parseInt($_[0]) && parseInt($_[1])) {
+                    console.log(parseInt($_[0]) - parseInt($_[1]))
+                }
+            } else if ($operation == "*") {
+                if (parseInt($_[0]) && parseInt($_[1])) {
+                    console.log(parseInt($_[0]) * parseInt($_[1]))
+                }
+            } else if ($operation == "/") {
+                if (parseInt($_[0]) && parseInt($_[1])) {
+                    console.log(parseInt($_[0]) / parseInt($_[1]))
+                }
+            } else if ($operation == "^") {
+                if (parseInt($_[0]) && parseInt($_[1])) {
+                    Math.pow(parseInt($_[0]), parseInt($_[1]))
+                }
+            }
         }
         // ===============
         // IF NO CMD
         // ===============
-        else {
+        else if ($[0] == "set") {
             let returned = cmd.split(" ")[0]
             
-            if (getVariable('val:' + returned) != null) {
-                getVariable('val:' + returned).val = getArgs(cmd, 1, 0).split("= ")[1]
+            if (getVariable('val:' + returned, callingFrom) != null) {
+                getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
+            }
+        } else {
+            let returned = cmd.split(" ")[0]
+            
+            if (getVariable('val:' + returned, callingFrom) != null) {
+                getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             } else {
-                console.log("> Command not recognized.")
+                if (cmd == "/\r?\n/") {return}
+                console.log("[!] Command not recognized.")
             }
         }
     }
 }
+
+// question prompt
+
+console.log("[!] Module base loaded correctly.")
 
 const promptcmd = function() {
     let cmd_input = readline.createInterface({
@@ -243,11 +374,34 @@ const promptcmd = function() {
         output: process.stdout
     })
     
-    cmd_input.question("> ", function(cmd) {
+    cmd_input.question("[&] ", function(cmd) {
         handleCommand(cmd)
         cmd_input.close()
         promptcmd()
     })
 }
 
-promptcmd()
+let dir_input = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+})
+
+dir_input.question("[&] Load files from directory: ", function(cmd) {
+    fs.readdir(cmd, (err, files) => {
+        if (err) {
+            console.log(err)
+        }
+
+        files.forEach(file => {
+            handleCommand("exec " + cmd + "/" + file)
+        });
+
+        promptcmd()
+    });
+    
+    dir_input.close()
+})
+
+// defaults
+
+handleCommand("val $_[dirname] = " + __dirname)

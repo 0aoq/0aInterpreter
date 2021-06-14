@@ -14,6 +14,29 @@ http.createServer(function (req, res) {
             * {
                 margin: 0;
             }
+
+            body {
+                margin: 0;
+                font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+                background: #fff;
+            }
+
+            
+            p {
+                word-wrap: break-word;
+            }
+
+            @media screen and (min-width: 601px) {
+                p {
+                    font-size: 20px !important;
+                }
+            }
+
+            @media screen and (max-width: 600px) {
+                p {
+                    font-size: 15px !important;
+                }
+            }
         </style>
     `)
 
@@ -21,18 +44,81 @@ http.createServer(function (req, res) {
         <p>localhost:8080/${req.url}</p>
     `);
 
-    if (req.url == '/listdir') {
+    if (req.url == '/api') {
         res.write(`
         <p><b>listdir</b> - List all files in a specified directory.</p>
         <br>
         <b><p>Directory:</b> (string)</p>
+        <hr>
         `)
-    } else if (req.url == '/val') {
+
         res.write(`
+        
         <p><b>val</b> - Create a new global variable that can be accessed from any instance that requires it.</p>
         <br>
-        <b><p>name:</b> (string)</p><br>
+        <b><p>name:</b> (string)</p>
         <b><p>value:</b> (any)</p>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>func</b> - Create a new global function that can be accessed from any instance that requires it.</p>
+        <br>
+        <b><p>name:</b> (string)</p>
+        <b><p>actions:</b> (0a)</p>
+        <b><p>args:</b> (val)</p>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>read</b> - Read a file from path</p>
+        <br>
+        <b><p>path:</b> (string)</p>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>write</b> - Write to a file from path</p>
+        <br>
+        <b><p>path:</b> (string)</p>
+        <b><p>data:</b> (string)</p>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>write_add</b> - Add to a file from path</p>
+        <br>
+        <b><p>path:</b> (string)</p>
+        <b><p>data:</b> (string)</p>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>rm</b> - Remove a file from path</p>
+        <br>
+        <b><p>path:</b> (string)</p>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>mk</b> - Make a directory/file</p>
+        <br>
+        <b><p>includedir:</b> (boolean)</p>
+        <b><p>path/name:</b> (string)</p>
+        <hr>
+        
         `)
     }
 
@@ -154,7 +240,6 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
     let $ = cmd.split(" ")
 
     if ($) {
-        console.log(cmd)
         for (let $_ of $) {
             if ($_ == "cd") {
                 cmd.replace($_, getVariable('val:$_[dirname]'))

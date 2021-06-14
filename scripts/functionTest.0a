@@ -1,2 +1,6 @@
-func test{/s}log val:__paramTest1
-run test {/args} __paramTest1 = testing123 {/arg} 
+func test{/s}
+    // logs whatever parameter is given to the function
+    log $:givenParam
+{/end} &
+
+run test {/args} givenParam = testing123 {/arg} 

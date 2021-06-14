@@ -473,7 +473,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
                                     handleCommand(line)
                                 } else {
                                     if (line.split(" ")[0] == "{/end}") {
-                                        if (getArgs(line, 2, 0) == $loopname) {
+                                        if (line.split(" ")[1] == $loopname) {
                                             lineloop = false
                                             $loopname = null
                                             $__ = []

@@ -69,6 +69,10 @@ http.createServer(function (req, res) {
         <b><p>name:</b> (string)</p>
         <b><p>actions:</b> (0a)</p>
         <b><p>args:</b> (val)</p>
+        <pre><code>
+func test{/s}log $:__paramTest1
+run test {/args} __paramTest1 = testing123 {/arg} 
+        </code></pre>
         <hr>
         
         `)
@@ -117,6 +121,26 @@ http.createServer(function (req, res) {
         <br>
         <b><p>includedir:</b> (boolean)</p>
         <b><p>path/name:</b> (string)</p>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>cd</b> - Get current working directory</p>
+        <br>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <p><b>repeat</b> - Run a loop</p>
+        <br>
+        <b><p>actions:</b> (0a)</p>
+        <b><p>every:</b> (number) [Pause thread time between loops (seconds)]</p>
+        <b><p>i:</b> (number) [Amount of times to loop]</p>
+        <pre><code>repeat.0a repeat log test => every 1 i 4</code></pre>
         <hr>
         
         `)
@@ -257,12 +281,6 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
     let $ = cmd.split(" ")
 
     if ($) {
-        for (let $_ of $) {
-            if ($_ == "cd") {
-                cmd.replace($_, getVariable('val:$_[dirname]'))
-            }
-        }
-
         if ($[0] == "log") {
             let returned = parseVariables(cmd, callingFrom)
             console.log(getArgs(returned, 2, 0))
@@ -270,9 +288,12 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
         // ===============
         // FILE SYSTEM
         // ===============
+        else if ($[0] == "cd") {
+            console.log(getVariable("val:$cd").val)
+        }
         else if ($[0] == "read") {
-            $ = cmd.split($[0])
-            let returned = $[1].slice(1)
+            let returned = parseVariables(getArgs(cmd, 2, 0), callingFrom)
+            console.log(returned)
 
             fs.readFile(returned, 'utf8', function (err, data) {
                 if (err) {
@@ -288,11 +309,13 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
         } else if ($[0] == "write") {
             let $name = getArgs(cmd, 2, 0).split(" ")[0]
             let $data = getArgs(cmd, 2, 1)
+            parseVariables($name, callingFrom)
 
             writeReturnErr($name, $data, false)
         } else if ($[0] == "write_add") {
             let $name = getArgs(cmd, 2, 0).split(" ")[0]
             let $data = getArgs(cmd, 2, 1)
+            parseVariables($name, callingFrom)
 
             writeReturnErr($name, $data, true)
         } else if ($[0] == "rm") {
@@ -320,7 +343,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
                 });
             }
 
-            fs.writeFile(getArgs(cmd, 2, 1), "", function(err) {
+            fs.writeFile(parseVariables(getArgs(cmd, 2, 1), callingFrom), "", function(err) {
                 if (err) {
                     console.log("Created.")
                 }
@@ -522,4 +545,4 @@ dir_input.question("[&] Load files from directory: ", function(cmd) {
 
 // defaults
 
-handleCommand("val $_[dirname] = " + __dirname)
+handleCommand("val $cd = " + process.cwd())

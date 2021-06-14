@@ -342,7 +342,9 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
         
                         // print all lines
                         lines.forEach((line) => {
-                            handleCommand(line)
+                            if (line.trim().length !== 0) {
+                                handleCommand(line)
+                            }
                         });
                     }
                 })

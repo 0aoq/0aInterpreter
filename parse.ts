@@ -37,6 +37,14 @@ http.createServer(function (req, res) {
                     font-size: 15px !important;
                 }
             }
+
+            pre:not(.ignore-style) {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                background: rgb(248, 248, 248);
+                padding: 10px;
+                border-radius: 5px;
+            }            
         </style>
     `)
 
@@ -75,8 +83,12 @@ http.createServer(function (req, res) {
         <b><p>actions:</b> (0a)</p>
         <b><p>args:</b> (val)</p>
         <pre><code>
-func test{/s}log $:__paramTest1
-run test {/args} __paramTest1 = testing123 {/arg} 
+func test{/s}
+    // logs whatever parameter is given to the function
+    log $:givenParam
+{/end} &
+        
+run test {/args} givenParam = testing123 {/arg} 
         </code></pre>
         <br>
         <hr>
@@ -247,17 +259,20 @@ const getFunction = function($name: string) {
     }
 }
 
-const parseVariables = function($content: string, $calling: string = "null") {
+const parseVariables = function($content: string, $calling: string = "null", $add: string = "") {
     let words = $content.split(" ")
 
     for (let word of words) {
-        let val = getVariable(word, $calling)
+        let $ = word + $add
+
+        let val = getVariable($, $calling)
+        
         if (val != null) {
             if (val.function == "null") {
-                $content = $content.replace(word, getVariable(word, $calling).val)
+                $content = $content.replace(word, getVariable($, $calling).val)
             } else {
                 if ($calling = val.function) {
-                    $content = $content.replace(word, getVariable(word, $calling).val)
+                    $content = $content.replace(word, getVariable($, $calling).val)
                 }
             }
         }
@@ -283,7 +298,7 @@ const makeVariable = function($name: string, $value: string, $function) {
         if (getVariable('$:' + $name.split(" = ")[0], $function) == null) {
             variables.push(
                 {
-                    name: '$:' + $name.split(" = ")[0],
+                    name: '$:' + $name.split(" = ")[0] + "__&func:" + $function,
                     val: $value,
                     function: $function
                 }
@@ -297,9 +312,15 @@ const makeVariable = function($name: string, $value: string, $function) {
 // main
 
 let $__ = []
-let cmds = ['val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm', 'listdir', 'mk', 'exec', 'calc', 'debug', 'set']
+let cmds = [ // list of allowed keywords
+    'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm', 
+    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//'
+]
 
-const handleCommand = function(cmd: string, callingFrom: string = "null") {
+const handleCommand = function(cmd: string, callingFrom: string = "null", addToVariables: string = "") {
+    cmd = cmd.replace("    ", "") // remove \t spaces
+    cmd = cmd.replace("\t", "") // remove \t spaces
+    
     let $ = cmd.split(" ")
 
     if ($) {
@@ -336,7 +357,6 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
             // run test
 
             let $name = getArgs(cmd, 2, 0).split("{/s}")[0]
-            let $run = getArgs(cmd, 2, 0).split("{/s}")[1]
 
             if (getFunction($name) == null && $name != "null") {
                 functions.push({
@@ -364,8 +384,9 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
                 }
             }
 
+            let uniqueId = "__&func:" + getFunction(returned).name
             for (let command of getFunction(returned).run) {
-                handleCommand(parseVariables(command), getFunction(returned).name)
+                handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
             }
         }
 
@@ -373,13 +394,12 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
         // VARIABLES ALLOWED
         // =================
 
-        for (let $_ of $) {
-            $[$_] = $_.replace($_, parseVariables($_, callingFrom))
+        for (let $_ of $) { // parse all variables from every word
+            $[$_] = $_.replace($_, parseVariables($_, callingFrom, addToVariables))
         }
 
         if ($[0] == "log") {
-            let returned = parseVariables(cmd, callingFrom)
-            console.log(getArgs(returned, 2, 0))
+            console.log(getArgs(cmd, 2, 0))
         } 
         // ===============
         // FILE SYSTEM
@@ -387,7 +407,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
         else if ($[0] == "cd") {
             console.log(getVariable("val:$cd").val)
         } else if ($[0] == "read") {
-            let returned = parseVariables(getArgs(cmd, 2, 0), callingFrom)
+            let returned = parseVariables(getArgs(cmd, 2, 0), callingFrom,)
             console.log(returned)
 
             fs.readFile(returned, 'utf8', function (err, data) {
@@ -473,7 +493,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
                                     handleCommand(line)
                                 } else {
                                     if (line.split(" ")[0] == "{/end}") {
-                                        if (line.split(" ")[1] == $loopname) {
+                                        if (line.split(" ")[1] == $loopname || line.split(" ")[1] == "&") {
                                             lineloop = false
                                             $loopname = null
                                             $__ = []
@@ -489,7 +509,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
                     }
                 })
             } else {
-                console.log("> Error: file must be a .0a file!")
+                console.log("SyntaxError: file must be a .0a file!")
             }
         }
         // ===============

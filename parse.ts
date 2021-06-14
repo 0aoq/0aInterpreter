@@ -296,6 +296,9 @@ const makeVariable = function($name: string, $value: string, $function) {
 
 // main
 
+let $__ = []
+let cmds = ['val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm', 'listdir', 'mk', 'exec', 'calc', 'debug', 'set']
+
 const handleCommand = function(cmd: string, callingFrom: string = "null") {
     let $ = cmd.split(" ")
 
@@ -338,7 +341,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
             if (getFunction($name) == null && $name != "null") {
                 functions.push({
                     name: $name,
-                    run: $run.split(" {/and} ")
+                    run: $__
                 })
             } else {
                 console.log(`> Syntax error: function has already been declared, or the name is reserved.`)
@@ -455,12 +458,34 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
                         // split the contents by new line
                         const lines = data.split(/\r?\n/);
         
+                        let lineloop = false
+                        let $loopname = null
+
                         // print all lines
                         lines.forEach((line) => {
                             if (line.trim().length !== 0) {
-                                handleCommand(line)
+                                if (!lineloop) {
+                                    if (line.split(" ")[0] == "func") {
+                                        lineloop = true
+                                        $loopname = getArgs(line, 2, 0).split("{/s}")[0]
+                                    }
+
+                                    handleCommand(line)
+                                } else {
+                                    if (line.split(" ")[0] == "{/end}") {
+                                        if (getArgs(line, 2, 0) == $loopname) {
+                                            lineloop = false
+                                            $loopname = null
+                                            $__ = []
+                                        }
+                                    } else {
+                                        $__.push(line)
+                                    }
+                                }
                             }
                         });
+                    } else {
+                        console.log("SyntaxError: file has no data.")
                     }
                 })
             } else {
@@ -519,15 +544,9 @@ const handleCommand = function(cmd: string, callingFrom: string = "null") {
             if (getVariable('val:' + returned, callingFrom) != null) {
                 getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             }
-        } else {
-            let returned = cmd.split(" ")[0]
-            
-            if (getVariable('val:' + returned, callingFrom) != null) {
-                getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
-            } else {
-                return
-            }
-        }
+        } else if (!cmd.split(" ") || !cmds.includes(cmd.split(" ")[0])) {
+            console.log("Command not recognized.")
+        } 
     }
 }
 

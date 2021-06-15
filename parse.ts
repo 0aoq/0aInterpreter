@@ -81,13 +81,24 @@ http.createServer(function (req, res) {
         <br>
         <b><p>name:</b> (string)</p>
         <b><p>actions:</b> (0a)</p>
-        <b><p>args:</b> (val)</p>
         <pre><code>
 func test{/s}
     // logs whatever parameter is given to the function
     log $:givenParam
 {/end} &
+        </code></pre>
+        <br>
+        <hr>
         
+        `)
+
+        res.write(`
+        
+        <br>
+        <p><b>run</b> - Run a global function.</p>
+        <br>
+        <b><p>args:</b> (0a)</p>
+        <pre><code>
 run test {/args} givenParam = testing123 {/arg} 
         </code></pre>
         <br>
@@ -101,6 +112,7 @@ run test {/args} givenParam = testing123 {/arg}
         <p><b>read</b> - Read a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
+        <pre><code>reat &;path</code></pre>
         <br>
         <hr>
         
@@ -113,6 +125,7 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
+        <pre><code>write &;path &;data</code></pre>
         <br>
         <hr>
         
@@ -125,6 +138,7 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
+        <pre><code>write_add &;path &;data</code></pre>
         <br>
         <hr>
         
@@ -136,6 +150,7 @@ run test {/args} givenParam = testing123 {/arg}
         <p><b>rm</b> - Remove a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
+        <pre><code>rm &;path</code></pre>
         <br>
         <hr>
         
@@ -148,6 +163,7 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>includedir:</b> (boolean)</p>
         <b><p>path/name:</b> (string)</p>
+        <pre><code>mk &;directory/test.0a</code></pre>
         <br>
         <hr>
         
@@ -171,6 +187,19 @@ run test {/args} givenParam = testing123 {/arg}
         <b><p>every:</b> (number) [Pause thread time between loops (seconds)]</p>
         <b><p>i:</b> (number) [Amount of times to loop]</p>
         <pre><code>repeat log test => every 1 i 4</code></pre>
+        <br>
+        <hr>
+        
+        `)
+
+        res.write(`
+        
+        <br>
+        <p><b>debug</b> - View stored tables of variables/functions</p>
+        <br>
+        <b><p>type:</b> (string)</p>
+        <pre><code>debug variables</code></pre>
+        <pre><code>debug functions</code></pre>
         <br>
         <hr>
         
@@ -487,7 +516,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
                                 if (!lineloop) {
                                     if (line.split(" ")[0] == "func") {
                                         lineloop = true
-                                        $loopname = getArgs(line, 2, 0).split("{/s}")[0]
+                                        $loopname = getArgs(line, 2, 0).split("{/s}")[0] || "0a_multiline_function"
                                     }
 
                                     handleCommand(line)

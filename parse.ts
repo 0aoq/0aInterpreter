@@ -7,8 +7,8 @@ const path = require('path')
 const http = require('http')
 
 http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+
     res.write(`
         <style>
             * {
@@ -62,6 +62,7 @@ http.createServer(function (req, res) {
         <p><b>listdir</b> - List all files in a specified directory.</p>
         <br>
         <b><p>Directory:</b> (string)</p>
+        <b><p>line type:</b> single</p>
         <br>
         <hr>
         `)
@@ -73,6 +74,7 @@ http.createServer(function (req, res) {
         <br>
         <b><p>name:</b> (string)</p>
         <b><p>value:</b> (any)</p>
+        <b><p>line type:</b> single</p>
         <br>
         <hr>
         
@@ -85,6 +87,7 @@ http.createServer(function (req, res) {
         <br>
         <b><p>name:</b> (string)</p>
         <b><p>actions:</b> (0a)</p>
+        <b><p>line type:</b> multi</p>
         <pre><code>
 func test{/s}
     // logs whatever parameter is given to the function
@@ -102,6 +105,7 @@ func test{/s}
         <p><b>run</b> - Run a global function.</p>
         <br>
         <b><p>args:</b> (0a)</p>
+        <b><p>line type:</b> single</p>
         <pre><code>
 run test {/args} givenParam = testing123 {/arg} 
         </code></pre>
@@ -116,6 +120,7 @@ run test {/args} givenParam = testing123 {/arg}
         <p><b>read</b> - Read a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
+        <b><p>line type:</b> single</p>
         <pre><code>reat &;path</code></pre>
         <br>
         <hr>
@@ -129,6 +134,7 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
+        <b><p>line type:</b> single</p>
         <pre><code>write &;path &;data</code></pre>
         <br>
         <hr>
@@ -142,6 +148,7 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
+        <b><p>line type:</b> single</p>
         <pre><code>write_add &;path &;data</code></pre>
         <br>
         <hr>
@@ -154,6 +161,7 @@ run test {/args} givenParam = testing123 {/arg}
         <p><b>rm</b> - Remove a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
+        <b><p>line type:</b> single</p>
         <pre><code>rm &;path</code></pre>
         <br>
         <hr>
@@ -167,6 +175,7 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>includedir:</b> (boolean)</p>
         <b><p>path/name:</b> (string)</p>
+        <b><p>line type:</b> single</p>
         <pre><code>mk &;directory/test.0a</code></pre>
         <br>
         <hr>
@@ -177,6 +186,7 @@ run test {/args} givenParam = testing123 {/arg}
         
         <br>
         <p><b>cd</b> - Get current working directory</p>
+        <b><p>line type:</b> single</p>
         <br>
         <hr>
         
@@ -190,6 +200,7 @@ run test {/args} givenParam = testing123 {/arg}
         <b><p>actions:</b> (0a)</p>
         <b><p>every:</b> (number) [Pause thread time between loops (seconds)]</p>
         <b><p>i:</b> (number) [Amount of times to loop]</p>
+        <b><p>line type:</b> single</p>
         <pre><code>repeat log test => every 1 i 4</code></pre>
         <br>
         <hr>
@@ -204,6 +215,7 @@ run test {/args} givenParam = testing123 {/arg}
         <b><p>type:</b> (string)</p>
         <pre><code>debug variables</code></pre>
         <pre><code>debug functions</code></pre>
+        <b><p>line type:</b> single</p>
         <br>
         <hr>
         
@@ -216,6 +228,8 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>statement:</b> (string)</p>
         <b><p>run:</b> (0a)</p>
+        <b><p>run:</b> (0a)</p>
+        <b><p>line type:</b> single</p>
         <pre><code>
 val test1 = hello
 if val:test1 == hello => run test {/args} givenParam = testing123
@@ -235,7 +249,7 @@ let variables = []
 let functions = []
 let indexed = []
 
-const writeReturnErr = function(fileName: string, newdata: string, add: boolean) {
+const writeReturnErr = function (fileName: string, newdata: string, add: boolean) {
     fs.readFile(fileName, 'utf8', function (err, data) {
         /* if (err) {
             return
@@ -256,7 +270,7 @@ async function sleep(sec) {
     return new Promise(resolve => setTimeout(resolve, sec * 1000));
 }
 
-const getArgs = function(cmd: string, limit: number, split: number) {
+const getArgs = function (cmd: string, limit: number, split: number) {
     let $ = cmd.split(" ", limit)
     $ = cmd.split($[split])
 
@@ -266,7 +280,7 @@ const getArgs = function(cmd: string, limit: number, split: number) {
 
 // helpers
 
-const getVariable = function($name: string, $function: string = "null") {
+const getVariable = function ($name: string, $function: string = "null") {
     if ($function == "null") {
         for (let variable of variables) {
             if (variable.name == $name) {
@@ -282,7 +296,7 @@ const getVariable = function($name: string, $function: string = "null") {
     }
 }
 
-const getFunction = function($name: string) {
+const getFunction = function ($name: string) {
     for (let func of functions) {
         if (func.name == $name) {
             return func
@@ -290,14 +304,14 @@ const getFunction = function($name: string) {
     }
 }
 
-const parseVariables = function($content: string, $calling: string = "null", $add: string = "") {
+const parseVariables = function ($content: string, $calling: string = "null", $add: string = "") {
     let words = $content.split(" ")
 
     for (let word of words) {
         let $ = word + $add
 
         let val = getVariable($, $calling)
-        
+
         if (val != null) {
             if (val.function == "null") {
                 $content = $content.replace(word, getVariable($, $calling).val)
@@ -312,7 +326,7 @@ const parseVariables = function($content: string, $calling: string = "null", $ad
     return $content
 }
 
-const makeVariable = function($name: string, $value: string, $function) {
+const makeVariable = function ($name: string, $value: string, $function) {
     if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
             variables.push(
@@ -343,15 +357,72 @@ const makeVariable = function($name: string, $value: string, $function) {
 // main
 
 let $__ = []
+let __$ = []
 let cmds = [ // list of allowed keywords
-    'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm', 
+    'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm',
     'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if'
 ]
 
-const handleCommand = function(cmd: string, callingFrom: string = "null", addToVariables: string = "") {
+const handleCommand = function (cmd: string, callingFrom: string = "null", addToVariables: string = "") {
     cmd = cmd.replace("    ", "") // remove \t spaces
     cmd = cmd.replace("\t", "") // remove \t spaces
-    
+
+    let lineloop = false
+    let $loopname = null
+    let holdLines = false
+    let $heldFor = null
+
+    function handleLines(line, calling?, add?) {
+        let $___ = line.split(" ")[0]
+
+        line = line.replace("    ", "") // remove \t spaces
+        line = line.replace("\t", "") // remove \t spaces
+
+        if (!lineloop) {
+            if ($___ == "func") {
+                if (!lineloop) {
+                    lineloop = true
+                    $loopname = getArgs(line, 2, 0).split("{/s}")[0] || "0a_multiline_function"
+                }
+            }
+
+            if (calling && add) {
+                handleCommand(parseVariables(line, getFunction(calling).name, add), getFunction(calling).name, add)
+            } else {
+                handleCommand(parseVariables(line, callingFrom))
+            }
+        } else {
+            if ($___ == "{/end}") {
+                if (line.split(" ")[1] == $loopname) {
+                    lineloop = false
+                    $loopname = null
+                    $__ = []
+                    holdLines = false
+                } else if (line.split(" ")[1] == $heldFor) {
+                    holdLines = false
+                    $heldFor = ""
+                }
+            } else {
+                if (line.split(" ")[0] == "func") {
+                    holdLines = true
+                    $heldFor = getArgs(line, 2, 0).split("{/s}")[0]
+                    if (calling && add) {
+                        handleCommand(parseVariables(line, getFunction(calling).name, add), getFunction(calling).name, add)
+                    } else {
+                        handleCommand(parseVariables(line, callingFrom))
+                    }
+                } else {
+                    if (!holdLines) {
+                        $__.push(line)
+                    } else {
+                        __$.push(line)
+                        console.log(__$)
+                    }
+                }
+            }
+        }
+    }
+
     let $ = cmd.split(" ")
 
     if ($) {
@@ -376,13 +447,13 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
                 for (i = 0; i < $amount; i++) {
                     handleCommand($do)
                     await sleep($every)
-                } 
+                }
             }
 
             worker()
-        // ===============
-        // FUNCTIONS
-        // ===============
+            // ===============
+            // FUNCTIONS
+            // ===============
         } else if ($[0] == "func") {
             // func test{/s}log Hello, World!{/and}log New line
             // run test
@@ -390,17 +461,24 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
             let $name = getArgs(cmd, 2, 0).split("{/s}")[0]
 
             if (getFunction($name) == null && $name != "null") {
-                functions.push({
-                    name: $name,
-                    run: $__
-                })
+                if (__$ != []) {
+                    functions.push({
+                        name: $name,
+                        run: __$
+                    })
+                } else {
+                    functions.push({
+                        name: $name,
+                        run: $__
+                    })
+                }
             } else {
                 console.log(`> Syntax error: function has already been declared, or the name is reserved.`)
             }
         } else if ($[0] == "run") {
             let returned = cmd.split(" ")[1]
 
-            if (returned == null) {return console.log("> SyntaxError: function doesn't exist.")}
+            if (returned == null) { return console.log("> SyntaxError: function doesn't exist.") }
 
             let args = cmd.split(" {/args} ")
 
@@ -410,13 +488,14 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
                 for (let arg of args) {
                     let $name = arg.split(" = ")[0]
                     let $value = arg.split(" = ")[1]
-    
+
                     makeVariable($name, $value, getFunction(returned).name || null)
                 }
             }
 
             let uniqueId = "__&func:" + getFunction(returned).name
             for (let command of getFunction(returned).run) {
+                handleLines(command)
                 handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
             }
         }
@@ -431,7 +510,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
 
         if ($[0] == "log") {
             console.log(getArgs(cmd, 2, 0))
-        } 
+        }
         // ===============
         // FILE SYSTEM
         // ===============
@@ -489,7 +568,7 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
                 });
             }
 
-            fs.writeFile(parseVariables(getArgs(cmd, 2, 1), callingFrom), "", function(err) {
+            fs.writeFile(parseVariables(getArgs(cmd, 2, 1), callingFrom), "", function (err) {
                 if (err) {
                     console.log("Created.")
                 }
@@ -504,35 +583,15 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
                     if (err) {
                         console.log("Recent command returned an error.")
                     }
-    
+
                     if (data) {
                         // split the contents by new line
                         const lines = data.split(/\r?\n/);
-        
-                        let lineloop = false
-                        let $loopname = null
 
                         // print all lines
                         lines.forEach((line) => {
                             if (line.trim().length !== 0) {
-                                if (!lineloop) {
-                                    if (line.split(" ")[0] == "func") {
-                                        lineloop = true
-                                        $loopname = getArgs(line, 2, 0).split("{/s}")[0] || "0a_multiline_function"
-                                    }
-
-                                    handleCommand(line)
-                                } else {
-                                    if (line.split(" ")[0] == "{/end}") {
-                                        if (line.split(" ")[1] == $loopname || line.split(" ")[1] == "&") {
-                                            lineloop = false
-                                            $loopname = null
-                                            $__ = []
-                                        }
-                                    } else {
-                                        $__.push(line)
-                                    }
-                                }
+                                handleLines(line)
                             }
                         });
                     } else {
@@ -598,13 +657,13 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
         // ===============
         else if ($[0] == "set") {
             let returned = cmd.split(" ")[0]
-            
+
             if (getVariable('val:' + returned, callingFrom) != null) {
                 getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             }
         } else if (!cmd.split(" ") || !cmds.includes(cmd.split(" ")[0])) {
             console.log("Command not recognized.")
-        } 
+        }
     }
 }
 
@@ -612,13 +671,13 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
 
 console.log("[!] Module base loaded correctly.")
 
-const promptcmd = function() {
+const promptcmd = function () {
     let cmd_input = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     })
-    
-    cmd_input.question("[&] ", function(cmd) {
+
+    cmd_input.question("[&] ", function (cmd) {
         handleCommand(cmd)
         cmd_input.close()
         promptcmd()
@@ -630,7 +689,7 @@ let dir_input = readline.createInterface({
     output: process.stdout
 })
 
-dir_input.question("[&] Load files from directory: (cd/scripts) ", function(cmd) {
+dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd) {
     cmd = cmd || process.cwd() + "/scripts"
     fs.readdir(cmd, (err, files) => {
         if (err) {
@@ -643,7 +702,7 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function(cmd)
 
         promptcmd()
     });
-    
+
     dir_input.close()
 })
 

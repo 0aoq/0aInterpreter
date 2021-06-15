@@ -23,15 +23,22 @@ http.createServer(function (req, res) {
             
             p {
                 word-wrap: break-word;
+                font-size: 15px !important;
             }
             @media screen and (min-width: 601px) {
                 p {
-                    font-size: 15px !important;
+                    font-size: 25px !important;
+                }
+                code {
+                    font-size: 25px;
                 }
             }
             @media screen and (max-width: 600px) {
                 p {
                     font-size: 35px !important;
+                }
+                code {
+                    font-size: 25px;
                 }
             }
             pre:not(.ignore-style) {

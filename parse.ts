@@ -208,6 +208,24 @@ run test {/args} givenParam = testing123 {/arg}
         <hr>
         
         `)
+
+        res.write(`
+        
+        <br>
+        <p><b>if</b> - Run code if a statement == another statement</p>
+        <br>
+        <b><p>statement:</b> (string)</p>
+        <b><p>run:</b> (0a)</p>
+        <pre><code>
+val test1 = hello
+if val:test1 == hello => run test {/args} givenParam = testing123
+
+// expected output: hello
+        </code></pre>
+        <br>
+        <hr>
+        
+        `)
     }
 
     res.end();
@@ -327,7 +345,7 @@ const makeVariable = function($name: string, $value: string, $function) {
 let $__ = []
 let cmds = [ // list of allowed keywords
     'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm', 
-    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//'
+    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if'
 ]
 
 const handleCommand = function(cmd: string, callingFrom: string = "null", addToVariables: string = "") {
@@ -524,6 +542,13 @@ const handleCommand = function(cmd: string, callingFrom: string = "null", addToV
             } else {
                 console.log("SyntaxError: file must be a .0a file!")
             }
+        } else if ($[0] == "if") {
+            let statement1 = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0].split(" == ")[0]
+            let statement2 = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0].split(" == ")[1]
+
+            if (statement1 == statement2) {
+                handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
+            }
         }
         // ===============
         // MATHEMATICS
@@ -624,4 +649,5 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function(cmd)
 
 // defaults
 
+process.title = "0a Basic Command Line"
 handleCommand("val $cd = " + process.cwd())

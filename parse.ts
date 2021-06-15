@@ -28,13 +28,13 @@ http.createServer(function (req, res) {
 
             @media screen and (min-width: 601px) {
                 p {
-                    font-size: 20px !important;
+                    font-size: 15px !important;
                 }
             }
 
             @media screen and (max-width: 600px) {
                 p {
-                    font-size: 15px !important;
+                    font-size: 35px !important;
                 }
             }
 
@@ -44,7 +44,11 @@ http.createServer(function (req, res) {
                 background: rgb(248, 248, 248);
                 padding: 10px;
                 border-radius: 5px;
-            }            
+            }
+
+            code {
+                font-size: 15px;
+            }
         </style>
     `)
 
@@ -212,26 +216,6 @@ run test {/args} givenParam = testing123 {/arg}
 let variables = []
 let functions = []
 let indexed = []
-
-const $check = function(expr){
-    const holder = []
-    const openBrackets = ['(','{','[']
-    const closedBrackets = [')','}',']']
-    for (let letter of expr) { // loop trought all letters of expr
-        if(openBrackets.includes(letter)){ // if its oppening bracket
-            holder.push(letter)
-        }else if(closedBrackets.includes(letter)){ // if its closing
-            const openPair = openBrackets[closedBrackets.indexOf(letter)] // find its pair
-            if(holder[holder.length - 1] === openPair){ // check if that pair is the last element in the array
-                holder.splice(-1,1) // if so, remove it
-            }else{ // if its not
-                holder.push(letter)
-                break // exit loop
-            }
-        }
-    }
-    return (holder.length === 0) // return true if length is 0, otherwise false
-}
 
 const writeReturnErr = function(fileName: string, newdata: string, add: boolean) {
     fs.readFile(fileName, 'utf8', function (err, data) {
@@ -621,7 +605,8 @@ let dir_input = readline.createInterface({
     output: process.stdout
 })
 
-dir_input.question("[&] Load files from directory: ", function(cmd) {
+dir_input.question("[&] Load files from directory: (cd/scripts) ", function(cmd) {
+    cmd = cmd || process.cwd() + "/scripts"
     fs.readdir(cmd, (err, files) => {
         if (err) {
             console.log(err)

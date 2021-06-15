@@ -14,30 +14,25 @@ http.createServer(function (req, res) {
             * {
                 margin: 0;
             }
-
             body {
                 margin: 0;
                 font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
                 background: #fff;
             }
-
             
             p {
                 word-wrap: break-word;
             }
-
             @media screen and (min-width: 601px) {
                 p {
                     font-size: 15px !important;
                 }
             }
-
             @media screen and (max-width: 600px) {
                 p {
                     font-size: 35px !important;
                 }
             }
-
             pre:not(.ignore-style) {
                 margin-top: 10px;
                 margin-bottom: 10px;
@@ -45,7 +40,6 @@ http.createServer(function (req, res) {
                 padding: 10px;
                 border-radius: 5px;
             }
-
             code {
                 font-size: 15px;
             }
@@ -62,7 +56,6 @@ http.createServer(function (req, res) {
         <p><b>listdir</b> - List all files in a specified directory.</p>
         <br>
         <b><p>Directory:</b> (string)</p>
-        <b><p>line type:</b> single</p>
         <br>
         <hr>
         `)
@@ -74,7 +67,6 @@ http.createServer(function (req, res) {
         <br>
         <b><p>name:</b> (string)</p>
         <b><p>value:</b> (any)</p>
-        <b><p>line type:</b> single</p>
         <br>
         <hr>
         
@@ -87,7 +79,6 @@ http.createServer(function (req, res) {
         <br>
         <b><p>name:</b> (string)</p>
         <b><p>actions:</b> (0a)</p>
-        <b><p>line type:</b> multi</p>
         <pre><code>
 func test{/s}
     // logs whatever parameter is given to the function
@@ -105,7 +96,6 @@ func test{/s}
         <p><b>run</b> - Run a global function.</p>
         <br>
         <b><p>args:</b> (0a)</p>
-        <b><p>line type:</b> single</p>
         <pre><code>
 run test {/args} givenParam = testing123 {/arg} 
         </code></pre>
@@ -120,7 +110,6 @@ run test {/args} givenParam = testing123 {/arg}
         <p><b>read</b> - Read a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
-        <b><p>line type:</b> single</p>
         <pre><code>reat &;path</code></pre>
         <br>
         <hr>
@@ -134,7 +123,6 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
-        <b><p>line type:</b> single</p>
         <pre><code>write &;path &;data</code></pre>
         <br>
         <hr>
@@ -148,7 +136,6 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>path:</b> (string)</p>
         <b><p>data:</b> (string)</p>
-        <b><p>line type:</b> single</p>
         <pre><code>write_add &;path &;data</code></pre>
         <br>
         <hr>
@@ -161,7 +148,6 @@ run test {/args} givenParam = testing123 {/arg}
         <p><b>rm</b> - Remove a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
-        <b><p>line type:</b> single</p>
         <pre><code>rm &;path</code></pre>
         <br>
         <hr>
@@ -175,7 +161,6 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>includedir:</b> (boolean)</p>
         <b><p>path/name:</b> (string)</p>
-        <b><p>line type:</b> single</p>
         <pre><code>mk &;directory/test.0a</code></pre>
         <br>
         <hr>
@@ -186,7 +171,6 @@ run test {/args} givenParam = testing123 {/arg}
         
         <br>
         <p><b>cd</b> - Get current working directory</p>
-        <b><p>line type:</b> single</p>
         <br>
         <hr>
         
@@ -200,7 +184,6 @@ run test {/args} givenParam = testing123 {/arg}
         <b><p>actions:</b> (0a)</p>
         <b><p>every:</b> (number) [Pause thread time between loops (seconds)]</p>
         <b><p>i:</b> (number) [Amount of times to loop]</p>
-        <b><p>line type:</b> single</p>
         <pre><code>repeat log test => every 1 i 4</code></pre>
         <br>
         <hr>
@@ -215,7 +198,6 @@ run test {/args} givenParam = testing123 {/arg}
         <b><p>type:</b> (string)</p>
         <pre><code>debug variables</code></pre>
         <pre><code>debug functions</code></pre>
-        <b><p>line type:</b> single</p>
         <br>
         <hr>
         
@@ -228,12 +210,9 @@ run test {/args} givenParam = testing123 {/arg}
         <br>
         <b><p>statement:</b> (string)</p>
         <b><p>run:</b> (0a)</p>
-        <b><p>run:</b> (0a)</p>
-        <b><p>line type:</b> single</p>
         <pre><code>
 val test1 = hello
 if val:test1 == hello => run test {/args} givenParam = testing123
-
 // expected output: hello
         </code></pre>
         <br>
@@ -357,7 +336,6 @@ const makeVariable = function ($name: string, $value: string, $function) {
 // main
 
 let $__ = []
-let __$ = []
 let cmds = [ // list of allowed keywords
     'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm',
     'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if'
@@ -366,62 +344,6 @@ let cmds = [ // list of allowed keywords
 const handleCommand = function (cmd: string, callingFrom: string = "null", addToVariables: string = "") {
     cmd = cmd.replace("    ", "") // remove \t spaces
     cmd = cmd.replace("\t", "") // remove \t spaces
-
-    let lineloop = false
-    let $loopname = null
-    let holdLines = false
-    let $heldFor = null
-
-    function handleLines(line, calling?, add?) {
-        let $___ = line.split(" ")[0]
-
-        line = line.replace("    ", "") // remove \t spaces
-        line = line.replace("\t", "") // remove \t spaces
-
-        if (!lineloop) {
-            if ($___ == "func") {
-                if (!lineloop) {
-                    lineloop = true
-                    $loopname = getArgs(line, 2, 0).split("{/s}")[0] || "0a_multiline_function"
-                }
-            }
-
-            if (calling && add) {
-                handleCommand(parseVariables(line, getFunction(calling).name, add), getFunction(calling).name, add)
-            } else {
-                handleCommand(parseVariables(line, callingFrom))
-            }
-        } else {
-            if ($___ == "{/end}") {
-                if (line.split(" ")[1] == $loopname) {
-                    lineloop = false
-                    $loopname = null
-                    $__ = []
-                    holdLines = false
-                } else if (line.split(" ")[1] == $heldFor) {
-                    holdLines = false
-                    $heldFor = ""
-                }
-            } else {
-                if (line.split(" ")[0] == "func") {
-                    holdLines = true
-                    $heldFor = getArgs(line, 2, 0).split("{/s}")[0]
-                    if (calling && add) {
-                        handleCommand(parseVariables(line, getFunction(calling).name, add), getFunction(calling).name, add)
-                    } else {
-                        handleCommand(parseVariables(line, callingFrom))
-                    }
-                } else {
-                    if (!holdLines) {
-                        $__.push(line)
-                    } else {
-                        __$.push(line)
-                        console.log(__$)
-                    }
-                }
-            }
-        }
-    }
 
     let $ = cmd.split(" ")
 
@@ -461,17 +383,10 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             let $name = getArgs(cmd, 2, 0).split("{/s}")[0]
 
             if (getFunction($name) == null && $name != "null") {
-                if (__$ != []) {
-                    functions.push({
-                        name: $name,
-                        run: __$
-                    })
-                } else {
-                    functions.push({
-                        name: $name,
-                        run: $__
-                    })
-                }
+                functions.push({
+                    name: $name,
+                    run: $__
+                })
             } else {
                 console.log(`> Syntax error: function has already been declared, or the name is reserved.`)
             }
@@ -495,7 +410,6 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
             let uniqueId = "__&func:" + getFunction(returned).name
             for (let command of getFunction(returned).run) {
-                handleLines(command)
                 handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
             }
         }
@@ -588,10 +502,37 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                         // split the contents by new line
                         const lines = data.split(/\r?\n/);
 
+                        let lineloop = false
+                        let $loopname = null
+
                         // print all lines
                         lines.forEach((line) => {
                             if (line.trim().length !== 0) {
-                                handleLines(line)
+                                line = line.replace("    ", "") // remove \t spaces
+                                line = line.replace("\t", "") // remove \t spaces
+
+                                if (!lineloop) {
+                                    if (line.split(" ")[0] == "func") {
+                                        lineloop = true
+                                        $loopname = getArgs(line, 2, 0).split("{/s}")[0] || "0a_multiline_function"
+                                    }
+
+                                    handleCommand(line)
+                                } else {
+                                    if (line.split(" ")[0] == "{/end}") {
+                                        if (line.split(" ")[1] == $loopname || line.split(" ")[1] == "&") {
+                                            lineloop = false
+                                            $loopname = null
+                                            $__ = []
+                                        }
+                                    } else {
+                                        $__.push(line)
+                                    }
+
+                                    if (line.split(" ")[0] == "func") {
+                                        return console.error("[!] SyntaxError: Nested functions are not allowed.");
+                                    }
+                                }
                             }
                         });
                     } else {

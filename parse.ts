@@ -23,11 +23,11 @@ http.createServer(function (req, res) {
             
             p {
                 word-wrap: break-word;
-                font-size: 15px !important;
+                font-size: 15px;
             }
             @media screen and (min-width: 601px) {
                 p {
-                    font-size: 25px !important;
+                    font-size: 20px;
                 }
                 code {
                     font-size: 25px;
@@ -35,7 +35,7 @@ http.createServer(function (req, res) {
             }
             @media screen and (max-width: 600px) {
                 p {
-                    font-size: 35px !important;
+                    font-size: 35px;
                 }
                 code {
                     font-size: 25px;
@@ -118,7 +118,7 @@ run test {/args} givenParam = testing123 {/arg}
         <p><b>read</b> - Read a file from path</p>
         <br>
         <b><p>path:</b> (string)</p>
-        <pre><code>reat &;path</code></pre>
+        <pre><code>read &;path</code></pre>
         <br>
         <hr>
         

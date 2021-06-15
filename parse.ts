@@ -5,6 +5,7 @@ const readline = require('readline')
 const fs = require('fs')
 const path = require('path')
 const http = require('http')
+const colors = require('colors');
 
 http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -388,7 +389,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                     run: $__
                 })
             } else {
-                console.log(`> Syntax error: function has already been declared, or the name is reserved.`)
+                console.log(colors.bold(colors.red(`[!] SyntaxError: Function has already been declared.`)))
             }
         } else if ($[0] == "run") {
             let returned = cmd.split(" ")[1]
@@ -436,7 +437,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
             fs.readFile(returned, 'utf8', function (err, data) {
                 if (err) {
-                    console.log("Recent command returned an error.")
+                    console.log(colors.bold(colors.red(`SyntaxError: ${err}`)))
                 }
 
                 console.log('\x1b[32m%s\x1b[0m', '=====================')
@@ -461,12 +462,12 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             try {
                 fs.unlinkSync(getArgs(cmd, 2, 0));
             } catch (err) {
-                console.error(err);
+                return console.log(colors.bold(colors.red(`Error: ${err}`)))
             }
         } else if ($[0] == "listdir") {
             fs.readdir(getArgs(cmd, 2, 0), (err, files) => {
                 if (err) {
-                    console.log(err)
+                    return console.log(colors.bold(colors.red(`Error: ${err}`)))
                 }
 
                 files.forEach(file => {
@@ -477,7 +478,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             if (getArgs(cmd, 2, 0) == "includedir") {
                 fs.mkdir(path.join(__dirname, cmd.split(" ")[1].split("/")[0]), (err) => {
                     if (err) {
-                        return console.error(err);
+                        return console.log(colors.bold(colors.red(`[!] Error: ${err}`)))
                     }
                 });
             }
@@ -495,7 +496,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             if (returned.split(".")[1] == "0a") {
                 fs.readFile(returned, 'utf8', function (err, data) {
                     if (err) {
-                        console.log("Recent command returned an error.")
+                        return console.log(colors.bold(colors.red(`Error: ${err}`)))
                     }
 
                     if (data) {
@@ -504,9 +505,11 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
                         let lineloop = false
                         let $loopname = null
+                        let parsed = 0
 
                         // print all lines
                         lines.forEach((line) => {
+                            parsed++
                             if (line.trim().length !== 0) {
                                 line = line.replace("    ", "") // remove \t spaces
                                 line = line.replace("\t", "") // remove \t spaces
@@ -530,17 +533,17 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                                     }
 
                                     if (line.split(" ")[0] == "func") {
-                                        return console.error("[!] SyntaxError: Nested functions are not allowed.");
+                                        return console.log(colors.bold(colors.red(`[${parsed}] SyntaxError: Nested functions are not allowed. Please initiate it elsewhere.`)))
                                     }
                                 }
                             }
                         });
                     } else {
-                        console.log("SyntaxError: file has no data.")
+                        console.log(colors.bold(colors.red(`SyntaxError: File has no data.`)))
                     }
                 })
             } else {
-                console.log("SyntaxError: file must be a .0a file!")
+                return console.log(colors.bold(colors.red(`[!] SyntaxError: File must be a .0a file`)))
             }
         } else if ($[0] == "if") {
             let statement1 = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0].split(" == ")[0]
@@ -603,7 +606,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                 getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             }
         } else if (!cmd.split(" ") || !cmds.includes(cmd.split(" ")[0])) {
-            console.log("Command not recognized.")
+            console.log(colors.bold(colors.red(`[!] SyntaxError: "${cmd}" is not recognized as a valid keyword.`)))
         }
     }
 }

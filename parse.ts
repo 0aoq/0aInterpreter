@@ -319,6 +319,7 @@ const getFunction = function ($name: string) {
 }
 
 const parseVariables = function ($content: string, $calling: string = "null", $add: string = "") {
+    $content = $content.split("//")[0]
     let words = $content.split(" ")
 
     for (let word of words) {
@@ -454,7 +455,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                     let $name = arg.split(" = ")[0]
                     let $value = arg.split(" = ")[1]
 
-                    makeVariable($name, $value, getFunction(returned).name || null)
+                    makeVariable($name, $value, getFunction(returned).name || "null")
                 }
             }
 

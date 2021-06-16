@@ -351,11 +351,22 @@ const makeVariable = function ($name: string, $value: string, $function) {
 
 // main
 
-let $__ = []
+let parsedLines = []
+let parseHold = []
+
 let cmds = [ // list of allowed keywords
     'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm',
-    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if', 'ifnot', 'rest'
+    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if', 'ifnot', 'rest',
+    '{/end}'
 ]
+
+function getFromHold($name) {
+    for (let value of parseHold) {
+        if (value.name == $name) {
+            return value
+        }
+    }
+}
 
 const handleCommand = function (cmd: string, callingFrom: string = "null", addToVariables: string = "") {
     cmd = cmd.replace("    ", "") // remove \t spaces
@@ -401,7 +412,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             if (getFunction($name) == null && $name != "null") {
                 functions.push({
                     name: $name,
-                    run: $__
+                    run: getFromHold($name).lines
                 })
             } else {
                 console.log(colors.bold(colors.red(`[!] SyntaxError: Function has already been declared.`)))
@@ -520,43 +531,60 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                         // split the contents by new line
                         const lines = data.split(/\r?\n/);
 
-                        let lineloop = false
-                        let $loopname = null
+                        let self = {
+                            name: null,
+                            active: false,
+                            lines: []
+                        }
                         let parsed = 0
 
                         // print all lines
                         lines.forEach((line) => {
                             parsed++
+                            // better multiline support for parser: still needs to be worked on!
                             if (line.trim().length !== 0) {
                                 line = line.replace("    ", "") // remove \t spaces
                                 line = line.replace("\t", "") // remove \t spaces
 
-                                if (!lineloop) {
+                                if (self.active == false) {
                                     if (line.split(" ")[0] == "func") {
-                                        lineloop = true
-                                        $loopname = getArgs(line, 2, 0).split("{/s}")[0] || "0a_multiline_function"
+                                        parseHold.push({
+                                            name: getArgs(line, 2, 0).split("{/s}")[0],
+                                            active: false,
+                                            lines: []
+                                        })
+
+                                        self = getFromHold(getArgs(line, 2, 0).split("{/s}")[0])
+                                        self.active = true
                                     }
 
                                     handleCommand(line)
                                 } else {
                                     if (line.split(" ")[0] == "{/end}") {
-                                        if (line.split(" ")[1] == $loopname || line.split(" ")[1] == "&") {
-                                            lineloop = false
-                                            $loopname = null
-                                            $__ = []
+                                        if (line.split(" ")[1] == self.name) {
+                                            self.active = false
+                                            self = {
+                                                name: null,
+                                                active: false,
+                                                lines: []
+                                            }
                                         }
                                     } else {
-                                        if (line.split(" => ")[1] == "{/stop}") { 
-                                            lineloop = false
-                                            $loopname = null
-                                            $__ = []
+                                        if (self.name != null) {
+                                            self.lines.push(line)
                                         } else {
-                                            $__.push(line)
+                                            parsedLines.push(line)
                                         }
                                     }
 
                                     if (line.split(" ")[0] == "func") {
                                         return console.log(colors.bold(colors.red(`[${parsed}] SyntaxError: Nested functions are not allowed. Please initiate it elsewhere.`)))
+                                    }
+                                }
+
+                                for (let held of parseHold) {
+                                    if (held.active == true) {
+                                        self = held
                                     }
                                 }
                             }
@@ -574,6 +602,10 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             let statement1 = func.split(" == ")[0]
             let statement2 = func.split(" == ")[1]
 
+            if (statement2 == "null") {
+                statement2 = null
+            }
+
             if (statement1 == statement2) {
                 handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
             }
@@ -582,6 +614,10 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
             let statement1 = func.split(" == ")[0]
             let statement2 = func.split(" == ")[1]
+
+            if (statement2 == "null") {
+                statement2 = null
+            }
 
             if (statement1 != statement2) {
                 handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
@@ -628,6 +664,10 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                 console.log(functions)
             } else if ($_ == "within") {
                 console.log(callingFrom)
+            } else if ($_ == "parsehold") {
+                console.log(parseHold)
+            } else if ($_ == "parsedlines") {
+                console.log(parsedLines)
             }
         }
         // ===============
@@ -675,7 +715,9 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd
         }
 
         files.forEach(file => {
-            handleCommand("exec " + cmd + "/" + file)
+            setTimeout(() => {
+                handleCommand("exec " + cmd + "/" + file)
+            }, 100);
         });
 
         promptcmd()

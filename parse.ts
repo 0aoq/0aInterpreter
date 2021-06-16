@@ -93,6 +93,25 @@ func test{/s}
     log $:givenParam
 {/end} &
         </code></pre>
+        <p>Functions can be nested up to 2 functions, this limit is for clean code, as well as readability. If you must go past this, please create a seperate function.
+This limit also applies to other multi line objects, if you have a nested function inside of another function, a multi line object will not be parsed if it is within the
+nested function.</p>
+        <pre><code>
+func ifTest{/s}
+    // logs "true" if value == another
+    if $:param1 == hello => log true
+    
+    // logs "false" if value != another
+    ifnot $:param2 == test_ing => log false
+
+    func ifTest1{/s} // nested function
+        log hello, world!
+        log test2
+        // cannot contain another nested function
+    {/end} ifTest1
+{/end} ifTest
+
+run ifTest {/args} param1 = hello {/arg} param2 = testing {/arg}</code></pre>
         <br>
         <hr>
         
@@ -225,7 +244,7 @@ func ifTest{/s}
         
     // logs "false" if value != another
     ifnot $:param2 == test_ing => log false
-{/end} &
+{/end} ifTest
     
 run ifTest {/args} param1 = hello {/arg} param2 = testing {/arg} 
 // expected output: true
@@ -378,12 +397,12 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
         // ===============
         // UTILITY
         // ===============
-        if ($[0] == "val") {
+        if ($[0] == "val") { // &;cmd[val]
             let $name = getArgs(cmd, 2, 0)
             let $value = $name.split(" = ")[1]
 
             makeVariable($name, $value, callingFrom || null)
-        } else if ($[0] == "repeat") {
+        } else if ($[0] == "repeat") { // &;cmd[repeat]
             // repeat {/s} run makeFile {/args} makeDir = true {/arg} fileName = test/repeatThing.txt {/arg} {/set} 1 i 4
             $ = cmd.split(" ")
             let returned = cmd.split(" {/s} ")[1].split(" {/set} ")
@@ -403,7 +422,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             // ===============
             // FUNCTIONS
             // ===============
-        } else if ($[0] == "func") {
+        } else if ($[0] == "func") { // &;cmd[func]
             // func test{/s}log Hello, World!{/and}log New line
             // run test
 
@@ -419,9 +438,9 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                     getFromHold($name).lines = ['parsed', `line: ${getFromHold($name).on}`]
                 }, 10);
             } else {
-                console.log(colors.bold(colors.red(`[!] SyntaxError: Function has already been declared.`)))
+                handleCommand(`SyntaxError Function has already been declared.`, callingFrom, addToVariables, line)
             }
-        } else if ($[0] == "run") {
+        } else if ($[0] == "run") { // &;cmd[run]
             let returned = cmd.split(" ")[1]
 
             if (returned == null) { return console.log("> SyntaxError: function doesn't exist.") }
@@ -441,6 +460,8 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
             let uniqueId = "__&func:" + getFunction(returned).name
             for (let command of getFunction(returned).run) {
+                command = command.replace("    ", "") // remove \t spaces
+                command = command.replace("\t", "") // remove \t spaces
                 handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
             }
         }
@@ -453,17 +474,17 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             $[$_] = $_.replace($_, parseVariables($_, callingFrom, addToVariables))
         }
 
-        if ($[0] == "log") {
+        if ($[0] == "log") { // &;cmd[log]
             console.log(getArgs(cmd, 2, 0))
-        } else if ($[0] == "SyntaxError") {
-            console.log(colors.bold(colors.red(`SyntaxError: ${getArgs(cmd, 2, 0)}`)))
+        } else if ($[0] == "SyntaxError") { // &;cmd[SyntaxErorr]
+            console.log(colors.bold(colors.red(`[!] (${line || 1}) SyntaxError: ${getArgs(cmd, 2, 0)}`)))
         }
         // ===============
         // FILE SYSTEM
         // ===============
-        else if ($[0] == "cd") {
+        else if ($[0] == "cd") { // &;cmd[cd]
             console.log(getVariable("val:$cd").val)
-        } else if ($[0] == "read") {
+        } else if ($[0] == "read") { // &;cmd[read]
             let returned = parseVariables(getArgs(cmd, 2, 0), callingFrom,)
             console.log(returned)
 
@@ -476,27 +497,27 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                 console.log(data)
                 console.log('\x1b[32m%s\x1b[0m', '=====================')
             })
-        } else if ($[0] == "clear") {
+        } else if ($[0] == "clear") { // &;cmd[clear]
             console.clear()
-        } else if ($[0] == "write") {
+        } else if ($[0] == "write") { // &;cmd[write]
             let $name = getArgs(cmd, 2, 0).split(" ")[0]
             let $data = getArgs(cmd, 2, 1)
             parseVariables($name, callingFrom)
 
             writeReturnErr($name, $data, false)
-        } else if ($[0] == "write_add") {
+        } else if ($[0] == "write_add") { // &;cmd[write_add]
             let $name = getArgs(cmd, 2, 0).split(" ")[0]
             let $data = getArgs(cmd, 2, 1)
             parseVariables($name, callingFrom)
 
             writeReturnErr($name, $data, true)
-        } else if ($[0] == "rm") {
+        } else if ($[0] == "rm") { // &;cmd[rm]
             try {
                 fs.unlinkSync(getArgs(cmd, 2, 0));
             } catch (err) {
                 return console.log(colors.bold(colors.red(`Error: ${err}`)))
             }
-        } else if ($[0] == "listdir") {
+        } else if ($[0] == "listdir") { // &;cmd[listdir]
             fs.readdir(getArgs(cmd, 2, 0), (err, files) => {
                 if (err) {
                     return console.log(colors.bold(colors.red(`Error: ${err}`)))
@@ -506,7 +527,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                     console.log(file)
                 });
             });
-        } else if ($[0] == "mk") {
+        } else if ($[0] == "mk") { // &;cmd[mk]
             if (cmd.split(" ")[1] == "includedir") {
                 fs.mkdir(path.join(process.cwd(), cmd.split(" ")[2].split("/")[0]), (err) => {
                     if (err) {
@@ -520,7 +541,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                     console.log("Created.")
                 }
             })
-        } else if ($[0] == "exec") {
+        } else if ($[0] == "exec") { // &;cmd[exec]
             $ = cmd.split(" ")
             $ = cmd.split($[0])
             let returned = $[1].slice(1)
@@ -546,6 +567,22 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                         // print all lines
                         lines.forEach((line) => {
                             parsed++
+
+                            function $s() {
+                                parseHold.push({
+                                    name: getArgs(line, 2, 0).split("{/s}")[0],
+                                    active: false,
+                                    lines: [],
+                                    on: parsed
+                                })
+
+                                self = getFromHold(getArgs(line, 2, 0).split("{/s}")[0])
+                                self.active = true
+
+                                handleCommand(line, callingFrom, addToVariables, parsed)
+                                parsedLines.push(line)
+                            }
+
                             // better multiline support for parser: still needs to be worked on!
                             if (line.trim().length !== 0) {
                                 line = line.replace("    ", "") // remove \t spaces
@@ -553,18 +590,11 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
                                 if (self.active == false) {
                                     if (line.split(" ")[0] == "func") {
-                                        parseHold.push({
-                                            name: getArgs(line, 2, 0).split("{/s}")[0],
-                                            active: false,
-                                            lines: [],
-                                            on: parsed
-                                        })
-
-                                        self = getFromHold(getArgs(line, 2, 0).split("{/s}")[0])
-                                        self.active = true
+                                        $s()
+                                    } else {
+                                        handleCommand(line, callingFrom, addToVariables, parsed)
+                                        parsedLines.push(line)
                                     }
-
-                                    handleCommand(line, callingFrom, addToVariables, parsed)
                                 } else {
                                     if (line.split(" ")[0] == "{/end}") {
                                         if (line.split(" ")[1] == self.name) {
@@ -580,24 +610,15 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                                             }, 1);
                                         }
                                     } else {
+                                        if (line.split(" ")[0] == "func") {
+                                            $s()
+                                        }
+
                                         if (self.name != null) {
                                             self.lines.push(line)
                                         } else {
                                             parsedLines.push(line)
                                         }
-                                    }
-
-                                    if (line.split(" ")[0] == "func") {
-                                        parseHold.push({
-                                            name: getArgs(line, 2, 0).split("{/s}")[0],
-                                            active: false,
-                                            lines: [],
-                                            on: parsed
-                                        })
-
-                                        self = getFromHold(getArgs(line, 2, 0).split("{/s}")[0])
-                                        self.active = true
-                                        // return console.log(colors.bold(colors.red(`[${parsed}] SyntaxError: Nested functions are not allowed. Please initiate it elsewhere.`)))
                                     }
                                 }
 
@@ -609,13 +630,13 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                             }
                         });
                     } else {
-                        console.log(colors.bold(colors.red(`SyntaxError: File has no data.`)))
+                        handleCommand(`SyntaxError File has no data.`, callingFrom, addToVariables, line)
                     }
                 })
             } else {
-                return console.log(colors.bold(colors.red(`[!] SyntaxError: File must be a .0a file`)))
+                return handleCommand(`SyntaxError File must be a .0a file`, callingFrom, addToVariables)
             }
-        } else if ($[0] == "if") {
+        } else if ($[0] == "if") { // &;cmd[if]
             let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0]
 
             let statement1 = func.split(" == ")[0]
@@ -628,7 +649,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             if (statement1 == statement2) {
                 handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
             }
-        } else if ($[0] == "ifnot") {
+        } else if ($[0] == "ifnot") { // &;cmd[ifnot]
             let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0]
 
             let statement1 = func.split(" == ")[0]
@@ -645,7 +666,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
         // ===============
         // MATHEMATICS
         // ===============
-        else if ($[0] == "calc") {
+        else if ($[0] == "calc") { // &;cmd[calc]
             let $_ = getArgs(cmd, 2, 0).split(" with ")[0].split(" ")
             let $operation = getArgs(cmd, 2, 0).split(" with ")[1]
 
@@ -674,7 +695,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
         // ===============
         // DEBUG CMDS
         // ===============
-        else if ($[0] == "debug") {
+        else if ($[0] == "debug") { // &;cmd[debug]
             let $_ = getArgs(cmd, 2, 0)
 
             if ($_ == "variables") {
@@ -692,14 +713,14 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
         // ===============
         // IF NO CMD
         // ===============
-        else if ($[0] == "set") {
+        else if ($[0] == "set") { // &;cmd[set]
             let returned = cmd.split(" ")[0]
 
             if (getVariable('val:' + returned, callingFrom) != null) {
                 getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             }
         } else if (!cmd.split(" ") || !cmds.includes(cmd.split(" ")[0])) {
-            console.log(colors.bold(colors.red(`[!] SyntaxError: "${cmd}" is not recognized as a valid keyword.`)))
+            handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
         }
     }
 }

@@ -368,7 +368,7 @@ function getFromHold($name) {
     }
 }
 
-const handleCommand = function (cmd: string, callingFrom: string = "null", addToVariables: string = "") {
+const handleCommand = function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
     cmd = cmd.replace("    ", "") // remove \t spaces
     cmd = cmd.replace("\t", "") // remove \t spaces
 
@@ -414,6 +414,10 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                     name: $name,
                     run: getFromHold($name).lines
                 })
+
+                setTimeout(() => {
+                    getFromHold($name).lines = ['parsed', `line: ${getFromHold($name).on}`]
+                }, 10);
             } else {
                 console.log(colors.bold(colors.red(`[!] SyntaxError: Function has already been declared.`)))
             }
@@ -534,7 +538,8 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                         let self = {
                             name: null,
                             active: false,
-                            lines: []
+                            lines: [],
+                            on: 0
                         }
                         let parsed = 0
 
@@ -551,23 +556,28 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                                         parseHold.push({
                                             name: getArgs(line, 2, 0).split("{/s}")[0],
                                             active: false,
-                                            lines: []
+                                            lines: [],
+                                            on: parsed
                                         })
 
                                         self = getFromHold(getArgs(line, 2, 0).split("{/s}")[0])
                                         self.active = true
                                     }
 
-                                    handleCommand(line)
+                                    handleCommand(line, callingFrom, addToVariables, parsed)
                                 } else {
                                     if (line.split(" ")[0] == "{/end}") {
                                         if (line.split(" ")[1] == self.name) {
                                             self.active = false
-                                            self = {
-                                                name: null,
-                                                active: false,
-                                                lines: []
-                                            }
+                                            setTimeout(() => {
+                                                self.lines = ['parsed',`file lines: ${parsed}`]
+                                                self = {
+                                                    name: null,
+                                                    active: false,
+                                                    lines: [],
+                                                    on: 0
+                                                }
+                                            }, 1);
                                         }
                                     } else {
                                         if (self.name != null) {
@@ -578,7 +588,16 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                                     }
 
                                     if (line.split(" ")[0] == "func") {
-                                        return console.log(colors.bold(colors.red(`[${parsed}] SyntaxError: Nested functions are not allowed. Please initiate it elsewhere.`)))
+                                        parseHold.push({
+                                            name: getArgs(line, 2, 0).split("{/s}")[0],
+                                            active: false,
+                                            lines: [],
+                                            on: parsed
+                                        })
+
+                                        self = getFromHold(getArgs(line, 2, 0).split("{/s}")[0])
+                                        self.active = true
+                                        // return console.log(colors.bold(colors.red(`[${parsed}] SyntaxError: Nested functions are not allowed. Please initiate it elsewhere.`)))
                                     }
                                 }
 

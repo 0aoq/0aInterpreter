@@ -192,7 +192,7 @@ run test {/args} givenParam = testing123 {/arg}
         <b><p>actions:</b> (0a)</p>
         <b><p>every:</b> (number) [Pause thread time between loops (seconds)]</p>
         <b><p>i:</b> (number) [Amount of times to loop]</p>
-        <pre><code>repeat log test => every 1 i 4</code></pre>
+        <pre><code>repeat {/s} &;actions {/set} &;every i &;i</code></pre>
         <br>
         <hr>
         
@@ -219,9 +219,17 @@ run test {/args} givenParam = testing123 {/arg}
         <b><p>statement:</b> (string)</p>
         <b><p>run:</b> (0a)</p>
         <pre><code>
-val test1 = hello
-if val:test1 == hello => run test {/args} givenParam = testing123
-// expected output: hello
+func ifTest{/s}
+    // logs "true" if value == another
+    if $:param1 == hello => log true
+        
+    // logs "false" if value != another
+    ifnot $:param2 == test_ing => log false
+{/end} &
+    
+run ifTest {/args} param1 = hello {/arg} param2 = testing {/arg} 
+// expected output: true
+// expected output: false
         </code></pre>
         <br>
         <hr>
@@ -346,7 +354,7 @@ const makeVariable = function ($name: string, $value: string, $function) {
 let $__ = []
 let cmds = [ // list of allowed keywords
     'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm',
-    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if'
+    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if', 'ifnot', 'rest'
 ]
 
 const handleCommand = function (cmd: string, callingFrom: string = "null", addToVariables: string = "") {
@@ -365,12 +373,12 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
             makeVariable($name, $value, callingFrom || null)
         } else if ($[0] == "repeat") {
-            // write repeat.0a repeat log test => every 1 i 4
+            // repeat {/s} run makeFile {/args} makeDir = true {/arg} fileName = test/repeatThing.txt {/arg} {/set} 1 i 4
             $ = cmd.split(" ")
-            let returned = getArgs(cmd, 2, 0).split(" => every ")
+            let returned = cmd.split(" {/s} ")[1].split(" {/set} ")
             let $do = returned[0]
-            let $amount = returned[1].split("i")[1]
-            let $every = returned[1].split("i")[0]
+            let $amount = returned[1].split(" i ")[1]
+            let $every = returned[1].split(" i")[0]
 
             async function worker() {
                 var i
@@ -432,6 +440,8 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
 
         if ($[0] == "log") {
             console.log(getArgs(cmd, 2, 0))
+        } else if ($[0] == "SyntaxError") {
+            console.log(colors.bold(colors.red(`SyntaxError: ${getArgs(cmd, 2, 0)}`)))
         }
         // ===============
         // FILE SYSTEM
@@ -482,15 +492,15 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                 });
             });
         } else if ($[0] == "mk") {
-            if (getArgs(cmd, 2, 0) == "includedir") {
-                fs.mkdir(path.join(__dirname, cmd.split(" ")[1].split("/")[0]), (err) => {
+            if (cmd.split(" ")[1] == "includedir") {
+                fs.mkdir(path.join(process.cwd(), cmd.split(" ")[2].split("/")[0]), (err) => {
                     if (err) {
                         return console.log(colors.bold(colors.red(`[!] Error: ${err}`)))
                     }
                 });
             }
 
-            fs.writeFile(parseVariables(getArgs(cmd, 2, 1), callingFrom), "", function (err) {
+            fs.writeFile(parseVariables(cmd.split(" ")[2], callingFrom), "", function (err) {
                 if (err) {
                     console.log("Created.")
                 }
@@ -536,7 +546,13 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                                             $__ = []
                                         }
                                     } else {
-                                        $__.push(line)
+                                        if (line.split(" => ")[1] == "{/stop}") { 
+                                            lineloop = false
+                                            $loopname = null
+                                            $__ = []
+                                        } else {
+                                            $__.push(line)
+                                        }
                                     }
 
                                     if (line.split(" ")[0] == "func") {
@@ -553,10 +569,21 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                 return console.log(colors.bold(colors.red(`[!] SyntaxError: File must be a .0a file`)))
             }
         } else if ($[0] == "if") {
-            let statement1 = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0].split(" == ")[0]
-            let statement2 = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0].split(" == ")[1]
+            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0]
+
+            let statement1 = func.split(" == ")[0]
+            let statement2 = func.split(" == ")[1]
 
             if (statement1 == statement2) {
+                handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
+            }
+        } else if ($[0] == "ifnot") {
+            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0]
+
+            let statement1 = func.split(" == ")[0]
+            let statement2 = func.split(" == ")[1]
+
+            if (statement1 != statement2) {
                 handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
             }
         }

@@ -79,53 +79,6 @@ const getArgs = function (cmd: string, limit: number, split: number) {
 
 // helpers
 
-const getVariable = function ($name: string, $function: string = "null") {
-    if ($function == "null") {
-        for (let variable of variables) {
-            if (variable.name == $name) {
-                return variable
-            }
-        }
-    } else {
-        for (let variable of variables) {
-            if (variable.name == $name && $function == variable.function) {
-                return variable
-            }
-        }
-    }
-}
-
-const getFunction = function ($name: string) {
-    for (let func of functions) {
-        if (func.name == $name) {
-            return func
-        }
-    }
-}
-
-const parseVariables = function ($content: string, $calling: string = "null", $add: string = "") {
-    $content = $content.split("//")[0]
-    let words = $content.split(" ")
-
-    for (let word of words) {
-        let $ = word + $add
-
-        let val = getVariable($, $calling)
-
-        if (val != null) {
-            if (val.function == "null") {
-                $content = $content.replace(word, getVariable($, $calling).val)
-            } else {
-                if ($calling = val.function) {
-                    $content = $content.replace(word, getVariable($, $calling).val)
-                }
-            }
-        }
-    }
-
-    return $content
-}
-
 const makeVariable = function ($name: string, $value: string, $function) {
     if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
@@ -154,16 +107,81 @@ const makeVariable = function ($name: string, $value: string, $function) {
     }
 }
 
-// main
+const getVariable = function ($name: string, $function: string = "null") {
+    if ($function == "null") {
+        for (let variable of variables) {
+            if (variable.name == $name) {
+                return variable
+            }
+        }
+    } else {
+        for (let variable of variables) {
+            if (variable.name == $name && $function == variable.function) {
+                return variable
+            }
+        }
+    }
+}
 
-let parsedLines = []
-let parseHold = []
+const getFunction = function ($name: string) {
+    for (let func of functions) {
+        if (func.name == $name) {
+            return func
+        }
+    }
+}
+
+// Parsing helper functions
+
+const parseVariables = function ($content: string, $calling: string = "null", $add: string = "") {
+    $content = $content.split("//")[0]
+    let words = $content.split(" ")
+
+    for (let word of words) {
+        let $ = word + $add
+
+        let val = getVariable($, $calling)
+
+        if (val != null) {
+            if (val.function == "null") {
+                $content = $content.replace(word, getVariable($, $calling).val)
+            } else {
+                if ($calling = val.function) {
+                    $content = $content.replace(word, getVariable($, $calling).val)
+                }
+            }
+        }
+    }
+
+    return $content
+}
 
 let cmds = [ // list of allowed keywords
     'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm',
     'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if', 'ifnot', 'rest',
     '{/end}'
 ]
+
+let $functions = [
+    'log'
+]
+
+const parseCommands = function ($content: string, $calling: string = "null") {
+    let words = $content.split(" ")
+
+    for (let word of words) {
+        if ($functions.includes(word) && $checkBrackets(word)) {
+            $content = $content.replace(word, handleCommand(word.split("(")[0], $calling))
+        }
+    }
+
+    return $content
+}
+
+// main
+
+let parsedLines = []
+let parseHold = []
 
 function getFromHold($name) {
     for (let value of parseHold) {

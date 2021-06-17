@@ -11,248 +11,12 @@ http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
 
     res.write(`
-        <style>
-            * {
-                margin: 0;
-            }
-            body {
-                margin: 0;
-                font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-                background: #fff;
-            }
-            
-            p {
-                word-wrap: break-word;
-                font-size: 15px;
-            }
-            @media screen and (min-width: 601px) {
-                p {
-                    font-size: 20px;
-                }
-                code {
-                    font-size: 25px;
-                }
-            }
-            @media screen and (max-width: 600px) {
-                p {
-                    font-size: 35px;
-                }
-                code {
-                    font-size: 25px;
-                }
-            }
-            pre:not(.ignore-style) {
-                margin-top: 10px;
-                margin-bottom: 10px;
-                background: rgb(248, 248, 248);
-                padding: 10px;
-                border-radius: 5px;
-            }
-            code {
-                font-size: 15px;
-            }
-        </style>
-    `)
-
-    res.write(`
         <p>localhost:8080/${req.url}</p>
     `);
 
     if (req.url == '/api') {
         res.write(`
-        <br>
-        <p><b>listdir</b> - List all files in a specified directory.</p>
-        <br>
-        <b><p>Directory:</b> (string)</p>
-        <br>
-        <hr>
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>val</b> - Create a new global variable that can be accessed from any instance that requires it.</p>
-        <br>
-        <b><p>name:</b> (string)</p>
-        <b><p>value:</b> (any)</p>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>func</b> - Create a new global function that can be accessed from any instance that requires it.</p>
-        <br>
-        <b><p>name:</b> (string)</p>
-        <b><p>actions:</b> (0a)</p>
-        <pre><code>
-func test{/s}
-    // logs whatever parameter is given to the function
-    log $:givenParam
-{/end} &
-        </code></pre>
-        <p>Functions can be nested up to 2 functions, this limit is for clean code, as well as readability. If you must go past this, please create a seperate function.
-This limit also applies to other multi line objects, if you have a nested function inside of another function, a multi line object will not be parsed if it is within the
-nested function.</p>
-        <pre><code>
-func ifTest{/s}
-    // logs "true" if value == another
-    if $:param1 == hello => log true
-    
-    // logs "false" if value != another
-    ifnot $:param2 == test_ing => log false
-
-    func ifTest1{/s} // nested function
-        log hello, world!
-        log test2
-        // cannot contain another nested function
-    {/end} ifTest1
-{/end} ifTest
-
-run ifTest {/args} param1 = hello {/arg} param2 = testing {/arg}</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>run</b> - Run a global function.</p>
-        <br>
-        <b><p>args:</b> (0a)</p>
-        <pre><code>
-run test {/args} givenParam = testing123 {/arg} 
-        </code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>read</b> - Read a file from path</p>
-        <br>
-        <b><p>path:</b> (string)</p>
-        <pre><code>read &;path</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>write</b> - Write to a file from path</p>
-        <br>
-        <b><p>path:</b> (string)</p>
-        <b><p>data:</b> (string)</p>
-        <pre><code>write &;path &;data</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>write_add</b> - Add to a file from path</p>
-        <br>
-        <b><p>path:</b> (string)</p>
-        <b><p>data:</b> (string)</p>
-        <pre><code>write_add &;path &;data</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>rm</b> - Remove a file from path</p>
-        <br>
-        <b><p>path:</b> (string)</p>
-        <pre><code>rm &;path</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>mk</b> - Make a directory/file</p>
-        <br>
-        <b><p>includedir:</b> (boolean)</p>
-        <b><p>path/name:</b> (string)</p>
-        <pre><code>mk &;directory/test.0a</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>cd</b> - Get current working directory</p>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>repeat</b> - Run a loop</p>
-        <br>
-        <b><p>actions:</b> (0a)</p>
-        <b><p>every:</b> (number) [Pause thread time between loops (seconds)]</p>
-        <b><p>i:</b> (number) [Amount of times to loop]</p>
-        <pre><code>repeat {/s} &;actions {/set} &;every i &;i</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>debug</b> - View stored tables of variables/functions</p>
-        <br>
-        <b><p>type:</b> (string)</p>
-        <pre><code>debug variables</code></pre>
-        <pre><code>debug functions</code></pre>
-        <br>
-        <hr>
-        
-        `)
-
-        res.write(`
-        
-        <br>
-        <p><b>if</b> - Run code if a statement == another statement</p>
-        <br>
-        <b><p>statement:</b> (string)</p>
-        <b><p>run:</b> (0a)</p>
-        <pre><code>
-func ifTest{/s}
-    // logs "true" if value == another
-    if $:param1 == hello => log true
-        
-    // logs "false" if value != another
-    ifnot $:param2 == test_ing => log false
-{/end} ifTest
-    
-run ifTest {/args} param1 = hello {/arg} param2 = testing {/arg} 
-// expected output: true
-// expected output: false
-        </code></pre>
-        <br>
-        <hr>
-        
+        <a href="https://github.com/0aoq/0a-Documentation">https://github.com/0aoq/0a-Documentation</a>
         `)
     }
 
@@ -262,6 +26,27 @@ run ifTest {/args} param1 = hello {/arg} param2 = testing {/arg}
 let variables = []
 let functions = []
 let indexed = []
+
+
+const $checkBrackets = function (expr) {
+    const holder = []
+    const openBrackets = ['(', '{', '[']
+    const closedBrackets = [')', '}', ']']
+    for (let letter of expr) {
+        if (openBrackets.includes(letter)) {
+            holder.push(letter)
+        } else if (closedBrackets.includes(letter)) {
+            const openPair = openBrackets[closedBrackets.indexOf(letter)]
+            if (holder[holder.length - 1] === openPair) {
+                holder.splice(-1, 1)
+            } else {
+                holder.push(letter)
+                break
+            }
+        }
+    }
+    return (holder.length === 0) // return true if length is 0, otherwise false
+}
 
 const writeReturnErr = function (fileName: string, newdata: string, add: boolean) {
     fs.readFile(fileName, 'utf8', function (err, data) {
@@ -442,28 +227,27 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                 handleCommand(`SyntaxError Function has already been declared.`, callingFrom, addToVariables, line)
             }
         } else if ($[0] == "run") { // &;cmd[run]
-            let returned = cmd.split(" ")[1]
+            if (getArgs(cmd, 2, 1) && $checkBrackets(getArgs(cmd, 2, 1))) {
+                let args = getArgs(cmd, 2, 1).split(")")[0].split("(")[1].split(", ")
 
-            if (returned == null) { return console.log("> SyntaxError: function doesn't exist.") }
+                let returned = cmd.split(" ")[1]
+                if (args) {
+                    for (let arg of args) {
+                        let $name = arg.split(" = ")[0]
+                        let $value = arg.split(" = ")[1]
 
-            let args = cmd.split(" {/args} ")
-
-            if (args) {
-                args = args[1].split(" {/arg} ")
-                returned = returned.split(" {/args} ")[0]
-                for (let arg of args) {
-                    let $name = arg.split(" = ")[0]
-                    let $value = arg.split(" = ")[1]
-
-                    makeVariable($name, $value, getFunction(returned).name || "null")
+                        makeVariable($name, $value, getFunction(returned).name || "null")
+                    }
                 }
-            }
 
-            let uniqueId = "__&func:" + getFunction(returned).name
-            for (let command of getFunction(returned).run) {
-                command = command.replace("    ", "") // remove \t spaces
-                command = command.replace("\t", "") // remove \t spaces
-                handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
+                let uniqueId = "__&func:" + getFunction(returned).name
+                for (let command of getFunction(returned).run) {
+                    command = command.replace("    ", "") // remove \t spaces
+                    command = command.replace("\t", "") // remove \t spaces
+                    handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
+                }
+            } else {
+                handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
             }
         }
 
@@ -476,7 +260,12 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
         }
 
         if ($[0] == "log") { // &;cmd[log]
-            console.log(getArgs(cmd, 2, 0))
+            if ($checkBrackets(getArgs(cmd, 2, 0))) {
+                let split = getArgs(cmd, 2, 0).split(")")[0].split("(")[1]
+                console.log(split)
+            } else {
+                handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
+            }
         } else if ($[0] == "SyntaxError") { // &;cmd[SyntaxErorr]
             console.log(colors.bold(colors.red(`[!] (${line || 1}) SyntaxError: ${getArgs(cmd, 2, 0)}`)))
         }
@@ -601,7 +390,7 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
                                         if (line.split(" ")[1] == self.name) {
                                             self.active = false
                                             setTimeout(() => {
-                                                self.lines = ['parsed',`file lines: ${parsed}`]
+                                                self.lines = ['parsed', `file lines: ${parsed}`]
                                                 self = {
                                                     name: null,
                                                     active: false,

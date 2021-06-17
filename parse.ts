@@ -135,9 +135,27 @@ const getFunction = function ($name: string) {
 
 const parseVariables = function ($content: string, $calling: string = "null", $add: string = "") {
     $content = $content.split("//")[0]
-    let words = $content.split(" ")
 
+    let words = $content.split(" ")
     for (let word of words) {
+        let $ = word + $add
+
+        let val = getVariable($, $calling)
+
+        if (val != null) {
+            if (val.function == "null") {
+                $content = $content.replace(word, getVariable($, $calling).val)
+            } else {
+                if ($calling = val.function) {
+                    $content = $content.replace(word, getVariable($, $calling).val)
+                }
+            }
+        }
+    }
+
+    let __words = $content.split(")")[0].split("(")
+    
+    for (let word of __words) {
         let $ = word + $add
 
         let val = getVariable($, $calling)
@@ -172,6 +190,7 @@ const parseCommands = function ($content: string, $calling: string = "null") {
     for (let word of words) {
         if ($functions.includes(word) && $checkBrackets(word)) {
             $content = $content.replace(word, handleCommand(word.split("(")[0], $calling))
+            console.log($content)
         }
     }
 
@@ -246,13 +265,20 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             }
         } else if ($[0] == "run") { // &;cmd[run]
             if (getArgs(cmd, 2, 1) && $checkBrackets(getArgs(cmd, 2, 1))) {
-                let args = getArgs(cmd, 2, 1).split(")")[0].split("(")[1].split(", ")
+                let args = getArgs(cmd, 2, 1).split(")")[0].split("(")[1].split("; ")
 
                 let returned = cmd.split(" ")[1]
                 if (args) {
                     for (let arg of args) {
                         let $name = arg.split(" = ")[0]
                         let $value = arg.split(" = ")[1]
+
+                        for (let val of variables) {
+                            if (val.function == getFunction(returned).name) {
+                                val.name = "&;0a__val:reset"
+                                val.val = ""
+                            }
+                        }
 
                         makeVariable($name, $value, getFunction(returned).name || "null")
                     }
@@ -278,8 +304,8 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
         }
 
         if ($[0] == "log") { // &;cmd[log]
-            if ($checkBrackets(getArgs(cmd, 2, 0))) {
-                let split = getArgs(cmd, 2, 0).split(")")[0].split("(")[1]
+            if ($checkBrackets(cmd.slice(4))) { // .slice(4) is the exact amount of space, log (
+                let split = cmd.slice(4).split(")")[0].split("(")[1]
                 console.log(split)
             } else {
                 handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)

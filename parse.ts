@@ -191,7 +191,7 @@ let cmds = [ // list of allowed keywords
 ]
 
 let $functions = [
-    'log'
+    'log', 'run'
 ]
 
 const parseCommands = function ($content: string, $calling: string = "null") {
@@ -369,7 +369,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
         // FILE SYSTEM
         // ===============
         else if ($[0] == "cd") { // &;cmd[cd]
-            console.log(getVariable("val:$cd").val)
+            handleCommand('log (val:$cd)', callingFrom, addToVariables, line)
         } else if ($[0] == "read") { // &;cmd[read]
             let returned = parseVariables(getArgs(cmd, 2, 0), callingFrom,)
             console.log(returned)
@@ -448,6 +448,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                             lines: [],
                             on: 0
                         }
+                        
                         let parsed = 0
 
                         // print all lines
@@ -471,8 +472,10 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
 
                             // better multiline support for parser: still needs to be worked on!
                             if (line.trim().length !== 0) {
-                                line = line.replace("    ", "") // remove \t spaces
-                                line = line.replace("\t", "") // remove \t spaces
+                                for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000
+                                    line = line.replace("    ", "") // remove \t spaces
+                                    line = line.replace("\t", "") // remove \t spaces
+                                }
 
                                 if (self.active == false) {
                                     if (line.split(" ")[0] == "func") {
@@ -651,7 +654,7 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd
             console.log(err)
         }
 
-        console.log("thanks! your files have been loaded!! ^_^ >")
+        console.log(colors.bold(colors.green("Loading files.. [file] -> ^o^ -> ^-^")))
 
         files.forEach(file => {
             setTimeout(() => {
@@ -668,4 +671,4 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd
 // defaults
 
 process.title = "0a Basic Command Line"
-handleCommand("val $cd = " + process.cwd())
+handleCommand('val $cd = "' + process.cwd() + '"')

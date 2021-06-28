@@ -1,6 +1,31 @@
 // npx tsc parse.ts
 // node parse.js
 
+/*
+    0A PROGRAMMING LANGUAGE
+
+    - Author: [0a_oq](https://github.com/0aoq)
+    - Version: 0.5.2
+
+    # About
+    A very simple node command line basic programming language.
+
+    ## Currently Includes
+    Multi-line parsing engine,
+    Basic commands for system management
+    Powerful utility commands
+
+    # Links
+    Sourced at: https://github.com/0aoq/0aInterpreter
+    Documentation at: https://github.com/0aoq/0aDocumentation
+
+    # License
+
+    The 0a programming language is licensed under the **GNU Lesser General Public License v2.1** license.
+    For more information of limits and permissions view [the license page](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html).
+    https://github.com/0aoq/0aInterpreter/blob/main/LICENSE
+*/
+
 const readline = require('readline')
 const fs = require('fs')
 const path = require('path')
@@ -282,7 +307,8 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
             if (getFunction($name) == null && $name != "null") {
                 functions.push({
                     name: $name,
-                    run: getFromHold($name).lines
+                    run: getFromHold($name).lines,
+                    nestedto: callingFrom || "null"
                 })
 
                 setTimeout(() => {
@@ -296,27 +322,34 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                 let args = getArgs(cmd, 2, 1).split(")")[0].split("(")[1].split("; ")
 
                 let returned = cmd.split(" ")[1]
-                if (args) {
-                    for (let arg of args) {
-                        let $name = arg.split(" = ")[0]
-                        let $value = arg.split(" = ")[1]
 
-                        for (let val of variables) {
-                            if (val.function == getFunction(returned).name) {
-                                val.name = "&;0a__val:reset"
-                                val.val = ""
+                if (getFunction(returned).name) {
+                    if (getFunction(returned).nestedto == "null" || getFunction(returned).nestedto == callingFrom) {
+                        if (args) {
+                            for (let arg of args) {
+                                let $name = arg.split(" = ")[0]
+                                let $value = arg.split(" = ")[1]
+
+                                for (let val of variables) {
+                                    if (val.function == getFunction(returned).name) {
+                                        val.name = "&;0a__val:reset"
+                                        val.val = ""
+                                    }
+                                }
+
+                                makeVariable($name, $value, getFunction(returned).name || "null")
                             }
                         }
 
-                        makeVariable($name, $value, getFunction(returned).name || "null")
+                        let uniqueId = "__&func:" + getFunction(returned).name
+                        for (let command of getFunction(returned).run) {
+                            command = command.replace("    ", "") // remove \t spaces
+                            command = command.replace("\t", "") // remove \t spaces
+                            handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
+                        }
                     }
-                }
-
-                let uniqueId = "__&func:" + getFunction(returned).name
-                for (let command of getFunction(returned).run) {
-                    command = command.replace("    ", "") // remove \t spaces
-                    command = command.replace("\t", "") // remove \t spaces
-                    handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
+                } else {
+                    handleCommand(`SyntaxError Function "${returned}" does not exist.`, callingFrom, addToVariables, line)
                 }
             } else {
                 handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
@@ -444,7 +477,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                             lines: [],
                             on: 0
                         }
-                        
+
                         let parsed = 0
 
                         // print all lines
@@ -467,6 +500,16 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                             }
 
                             // better multiline support for parser: still needs to be worked on!
+
+                            /*
+                                0a Multi-line parsing core,
+                                Created for the 0a programming language, a language written entirly in typescript that is run is node.js
+                                Created by 0a_oq
+
+                                https://github.com/0aoq/0aInterpreter
+                                https://github.com/0aoq/0aInterpreter/blob/main/parse.ts
+                            */
+
                             if (line.trim().length !== 0) {
                                 for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000
                                     line = line.replace("    ", "") // remove \t spaces

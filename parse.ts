@@ -11,14 +11,10 @@ http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
 
     res.write(`
-        <p>localhost:8080/${req.url}</p>
+    <script>
+        window.location = "https://github.com/0aoq/0aDocumentation"
+    </script>
     `);
-
-    if (req.url == '/api') {
-        res.write(`
-        <a href="https://github.com/0aoq/0a-Documentation">https://github.com/0aoq/0a-Documentation</a>
-        `)
-    }
 
     res.end();
 }).listen(8080);

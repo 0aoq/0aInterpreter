@@ -87,14 +87,15 @@ const getArgs = function (cmd: string, limit: number, split: number) {
 
 // helpers
 
-const makeVariable = function ($name: string, $value: string, $function) {
+const makeVariable = function ($name: string, $value: any, $function, $type: string = "undefined") {
     if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
             variables.push(
                 {
                     name: 'val:' + $name.split(" = ")[0],
                     val: $value,
-                    function: "null"
+                    function: "null",
+                    __type: $type
                 }
             )
         } else {
@@ -106,7 +107,8 @@ const makeVariable = function ($name: string, $value: string, $function) {
                 {
                     name: '$:' + $name.split(" = ")[0] + "__&func:" + $function,
                     val: $value,
-                    function: $function
+                    function: $function,
+                    __type: $type
                 }
             )
         } else {
@@ -240,7 +242,21 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
             let $name = getArgs(cmd, 2, 0)
             let $value = $name.split(" = ")[1]
 
-            makeVariable($name, $value, callingFrom || null)
+            if (isNaN(parseInt($value))) {
+                if (!getVariable($value)) {
+                    if ($value[0] == '"') {
+                        if ($checkQuotes($value)) {
+                            makeVariable($name, $value.split('"')[1].split('"')[0], callingFrom || null, "string")
+                        } else {
+                            handleCommand("SyntaxError string was not closed properly.", callingFrom, addToVariables, line)
+                        }
+                    } else {
+                        makeVariable($name, $value, callingFrom || null)
+                    }
+                }
+            } else if (!isNaN(parseInt($value))) {
+                makeVariable($name, parseInt($value), callingFrom || null, "int")
+            }
         } else if ($[0] == "repeat") { // &;cmd[repeat]
             // repeat {/s} run makeFile {/args} makeDir = true {/arg} fileName = test/repeatThing.txt {/arg} {/set} 1 i 4
             $ = cmd.split(" ")
@@ -322,10 +338,29 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
         if ($[0] == "log") { // &;cmd[log]
             $ = cmd.split(" ")
 
-            if ($checkBrackets(cmd.slice(4)) && $checkQuotes(parseFunction(getArgs(cmd, 2, 0)))) {
-                console.log(parseString(parseFunction(getArgs(cmd, 2, 0))))
+            // really long error handling section
+            if (parseFunction(getArgs(cmd, 2, 0))[0] == '"') { // is a string
+                if ($checkBrackets(cmd.slice(4))) {
+                    if ($checkQuotes(parseFunction(getArgs(cmd, 2, 0)))) {
+                        console.log(parseString(parseFunction(getArgs(cmd, 2, 0))))
+                    } else {
+                        handleCommand("SyntaxError quotes weren't closed properly for log function.", callingFrom, addToVariables, line)
+                    }
+                } else {
+                    handleCommand("SyntaxError brakets were not closed properly for log function.", callingFrom, addToVariables, line)
+                }
+            } else if (getVariable(parseFunction(getArgs(cmd, 2, 0))) || !isNaN(parseInt(parseFunction(getArgs(cmd, 2, 0))))) { // is a variable/int
+                if ($checkBrackets(cmd.slice(4))) {
+                    if (getVariable(parseFunction(getArgs(cmd, 2, 0)))) { // specific for variable
+                        console.log(getVariable(parseFunction(getArgs(cmd, 2, 0))).val)
+                    } else { // any
+                        console.log(parseFunction(getArgs(cmd, 2, 0)))
+                    }
+                } else {
+                    handleCommand("SyntaxError brakets were not closed properly for log function.", callingFrom, addToVariables, line)
+                }
             } else {
-                handleCommand("SyntaxError log function returned an error.", callingFrom, addToVariables, line)
+                handleCommand("SyntaxError log type not recognized.", callingFrom, addToVariables, line)
             }
         } else if ($[0] == "SyntaxError") { // &;cmd[SyntaxErorr]
             console.log(colors.bold(colors.red(`[!] (${line || 1}) SyntaxError: ${getArgs(cmd, 2, 0)}`)))

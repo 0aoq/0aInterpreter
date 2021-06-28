@@ -507,7 +507,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
 
                             /*
                                 0a Multi-line parsing core,
-                                Created for the 0a programming language, a language written entirly in typescript that is run is node.js
+                                Created for the 0a programming language, a language written entirely in typescript that is run with node.js
                                 Created by 0a_oq
 
                                 https://github.com/0aoq/0aInterpreter

@@ -48,6 +48,14 @@ const $checkBrackets = function (expr) {
     return (holder.length === 0) // return true if length is 0, otherwise false
 }
 
+const $checkQuotes = function (expr) {
+    if (expr[0] == '"' && expr.slice(-1) == '"') {
+        return true
+    } else {
+        return false
+    }
+}
+
 const writeReturnErr = function (fileName: string, newdata: string, add: boolean) {
     fs.readFile(fileName, 'utf8', function (err, data) {
         /* if (err) {
@@ -154,7 +162,7 @@ const parseVariables = function ($content: string, $calling: string = "null", $a
     }
 
     let __words = $content.split(")")[0].split("(")
-    
+
     for (let word of __words) {
         let $ = word + $add
 
@@ -197,6 +205,14 @@ const parseCommands = function ($content: string, $calling: string = "null") {
     return $content
 }
 
+const parseString = function ($content: string) {
+    return $content.split('"')[1].split('"')[0]
+}
+
+const parseFunction = function ($content: string) {
+    return $content.split(")")[0].split("(")[1]
+}
+
 // main
 
 let parsedLines = []
@@ -210,7 +226,7 @@ function getFromHold($name) {
     }
 }
 
-const handleCommand = function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
+const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
     cmd = cmd.replace("    ", "") // remove \t spaces
     cmd = cmd.replace("\t", "") // remove \t spaces
 
@@ -304,11 +320,12 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
         }
 
         if ($[0] == "log") { // &;cmd[log]
-            if ($checkBrackets(cmd.slice(4))) { // .slice(4) is the exact amount of space, log (
-                let split = cmd.slice(4).split(")")[0].split("(")[1]
-                console.log(split)
+            $ = cmd.split(" ")
+
+            if ($checkBrackets(cmd.slice(4)) && $checkQuotes(parseFunction(getArgs(cmd, 2, 0)))) {
+                console.log(parseString(parseFunction(getArgs(cmd, 2, 0))))
             } else {
-                handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
+                handleCommand("SyntaxError log function returned an error.", callingFrom, addToVariables, line)
             }
         } else if ($[0] == "SyntaxError") { // &;cmd[SyntaxErorr]
             console.log(colors.bold(colors.red(`[!] (${line || 1}) SyntaxError: ${getArgs(cmd, 2, 0)}`)))
@@ -545,6 +562,17 @@ const handleCommand = function (cmd: string, callingFrom: string = "null", addTo
             }
         }
         // ===============
+        // UTIL FUNCTIONS
+        // ===============
+        else if ($[0] == "sleep") {
+            if ($checkBrackets(cmd.slice(4))) {
+                let split = cmd.slice(4).split(")")[0].split("(")[1]
+                await sleep(parseInt(split))
+            } else {
+                handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
+            }
+        }
+        // ===============
         // IF NO CMD
         // ===============
         else if ($[0] == "set") { // &;cmd[set]
@@ -587,6 +615,8 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd
         if (err) {
             console.log(err)
         }
+
+        console.log("thanks! your files have been loaded!! ^_^ >")
 
         files.forEach(file => {
             setTimeout(() => {

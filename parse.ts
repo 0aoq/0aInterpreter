@@ -1,34 +1,5 @@
-// parse.ts - main interpreter file
-
-/*
-# 0a Interpreter
-
-- Author: [0a_oq](https://github.com/0aoq)
-- Version: 0.5.2
-
-## About
-
-A very simple node command line basic programming language.
-
-### Currently Includes
-
-- Multi-line parsing engine,
-- Basic commands for system management
-- Powerful utility commands
-
-## Links
-
-Sourced at: https://github.com/0aoq/0aInterpreter
-
-Documentation at: https://github.com/0aoq/0aDocumentation
-
-## License
-
-The 0a programming language is licensed under the **GNU Lesser General Public License v2.1** license.
-For more information of limits and permissions view [the license page](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html).
-
-https://github.com/0aoq/0aInterpreter/blob/main/LICENSE
-*/
+// npx tsc parse.ts
+// node parse.js
 
 const readline = require('readline')
 const fs = require('fs')
@@ -260,6 +231,8 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
     let $ = cmd.split(" ")
 
     if ($) {
+        if ($[0] == "//") { return }
+
         // ===============
         // UTILITY
         // ===============
@@ -306,7 +279,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
             // func test{/s}log Hello, World!{/and}log New line
             // run test
 
-            let $name = getArgs(cmd, 2, 0).split("{/s}")[0]
+            let $name = getArgs(cmd, 2, 0).split(" do")[0]
 
             if (getFunction($name) == null && $name != "null") {
                 functions.push({
@@ -490,13 +463,13 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
 
                             function $s() {
                                 parseHold.push({
-                                    name: getArgs(line, 2, 0).split("{/s}")[0],
+                                    name: getArgs(line, 2, 0).split(" do")[0],
                                     active: false,
                                     lines: [],
                                     on: parsed
                                 })
 
-                                self = getFromHold(getArgs(line, 2, 0).split("{/s}")[0])
+                                self = getFromHold(getArgs(line, 2, 0).split(" do")[0])
                                 self.active = true
 
                                 handleCommand(line, callingFrom, addToVariables, parsed)
@@ -504,16 +477,6 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                             }
 
                             // better multiline support for parser: still needs to be worked on!
-
-                            /*
-                                0a Multi-line parsing core,
-                                Created for the 0a programming language, a language written entirely in typescript that is run with node.js
-                                Created by 0a_oq
-
-                                https://github.com/0aoq/0aInterpreter
-                                https://github.com/0aoq/0aInterpreter/blob/main/parse.ts
-                            */
-
                             if (line.trim().length !== 0) {
                                 for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000
                                     line = line.replace("    ", "") // remove \t spaces
@@ -528,7 +491,20 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                                         parsedLines.push(line)
                                     }
                                 } else {
-                                    if (line.split(" ")[0] == "{/end}") {
+                                    if (line.split(" ")[0] == "end") {
+                                        if (line.split(" ")[1] == self.name) {
+                                            self.active = false
+                                            setTimeout(() => {
+                                                self.lines = ['parsed', `file lines: ${parsed}`]
+                                                self = {
+                                                    name: null,
+                                                    active: false,
+                                                    lines: [],
+                                                    on: 0
+                                                }
+                                            }, 1);
+                                        }
+                                    } else if (line.split(" ")[0] == "thread:end") {
                                         if (line.split(" ")[1] == self.name) {
                                             self.active = false
                                             setTimeout(() => {
@@ -652,6 +628,15 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
             } else {
                 handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
             }
+        } else if ($[0] == "open") {
+            let url = getArgs(cmd, 2, 0)
+
+            if (url) {
+                var start = (process.platform == 'darwin'? 'open': process.platform == 'win32'? 'start': 'xdg-open');
+                require('child_process').exec(start + ' ' + url);
+            } else {
+                handleCommand("SyntaxError Url not specified.", callingFrom, addToVariables, line)
+            }
         }
         // ===============
         // IF NO CMD
@@ -715,3 +700,17 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd
 
 process.title = "0a Basic Command Line"
 handleCommand('val $cd = "' + process.cwd() + '"')
+
+/*
+
+    ===========================================================================
+    0A TYPES
+
+    The following types are required for the language to function.
+    ===========================================================================
+
+*/
+
+interface cmd {
+    
+}

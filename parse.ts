@@ -291,8 +291,8 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                 setTimeout(() => {
                     getFromHold($name).lines = ['parsed', `line: ${getFromHold($name).on}`]
                 }, 10);
-            } else {
-                handleCommand(`SyntaxError Function has already been declared.`, callingFrom, addToVariables, line)
+            } else if (getFunction($name).run[0].split(" ")[0] != "func") { // fix strange error on nested functions where it would try to duplicate
+                return handleCommand(`SyntaxError Function has already been declared.`, callingFrom, addToVariables, line)
             }
         } else if ($[0] == "run") { // &;cmd[run]
             if (getArgs(cmd, 2, 1) && $checkBrackets(getArgs(cmd, 2, 1))) {
@@ -545,7 +545,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                 return handleCommand(`SyntaxError File must be a .0a file`, callingFrom, addToVariables)
             }
         } else if ($[0] == "if") { // &;cmd[if]
-            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0]
+            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
 
             let statement1 = func.split(" == ")[0]
             let statement2 = func.split(" == ")[1]
@@ -555,10 +555,10 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
             }
 
             if (statement1 == statement2) {
-                handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
+                handleCommand(getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
             }
         } else if ($[0] == "ifnot") { // &;cmd[ifnot]
-            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" => ")[0]
+            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
 
             let statement1 = func.split(" == ")[0]
             let statement2 = func.split(" == ")[1]
@@ -568,7 +568,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
             }
 
             if (statement1 != statement2) {
-                handleCommand(getArgs(cmd, 2, 0).split(" => ")[1], callingFrom)
+                handleCommand(getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
             }
         }
         // ===============

@@ -1,7 +1,7 @@
 # 0a Interpreter
 
 - Author: [0a_oq](https://github.com/0aoq)
-- Version: 0.5.2
+- Version: 0.5.5
 
 ## About
 

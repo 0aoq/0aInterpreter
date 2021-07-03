@@ -203,6 +203,18 @@ const parseCommands = function ($content: string, $calling: string = "null") {
     return $content
 }
 
+const parseCommands2 = function ($content: string, $calling: string = "null") {
+    let words = $content.split(" ")
+
+    for (let word of words) {
+        if ($checkBrackets(word.split("cmd:")[1])) {
+            if (parseFunction(word.split("cmd:")[1])) {
+                handleCommand(parseFunction(word.split("cmd:")[1]), $calling, "", 1)
+            }
+        }
+    }
+}
+
 const parseString = function ($content: string) {
     return $content.split('"')[1].split('"')[0]
 }
@@ -296,7 +308,7 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
             }
         } else if ($[0] == "run") { // &;cmd[run]
             if (getArgs(cmd, 2, 1) && $checkBrackets(getArgs(cmd, 2, 1))) {
-                let args = getArgs(cmd, 2, 1).split(")")[0].split("(")[1].split("; ")
+                let args = parseFunction(getArgs(cmd, 2, 1)).split("; ")
 
                 let returned = cmd.split(" ")[1]
 
@@ -616,19 +628,21 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                 console.log(parseHold)
             } else if ($_ == "parsedlines") {
                 console.log(parsedLines)
+            } else if ($_ == "dictionary") {
+                console.log(cmds)
             }
         }
         // ===============
         // UTIL FUNCTIONS
         // ===============
-        else if ($[0] == "sleep") {
+        else if ($[0] == "sleep") { // &;cmd[sleep]
             if ($checkBrackets(cmd.slice(4))) {
                 let split = cmd.slice(4).split(")")[0].split("(")[1]
                 await sleep(parseInt(split))
             } else {
                 handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
             }
-        } else if ($[0] == "open") {
+        } else if ($[0] == "open") { // &;cmd[open]
             let url = getArgs(cmd, 2, 0)
 
             if (url) {

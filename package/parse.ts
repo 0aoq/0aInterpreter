@@ -7,6 +7,24 @@ const path = require('path')
 const http = require('http')
 const colors = require('colors');
 
+import { returnValue,
+    getFromReturned,
+    getArgs,
+    getFunction,
+    getVariable,
+    parseString,
+    parseVariables,
+    parseCommands,
+    parseCommands2,
+    $checkBrackets,
+    $checkQuotes,
+    cmds,
+    $functions,
+    sleep,
+    writeReturnErr,
+    makeVariable,
+    parseFunction } from './exports/utility.js'
+
 http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
 
@@ -19,214 +37,19 @@ http.createServer(function (req, res) {
     res.end();
 }).listen(8080);
 
-let variables = []
-let functions = []
+export let variables = []
+export let functions = []
 let indexed = []
-
-
-const $checkBrackets = function (expr) {
-    const holder = []
-    const openBrackets = ['(', '{', '[']
-    const closedBrackets = [')', '}', ']']
-    for (let letter of expr) {
-        if (openBrackets.includes(letter)) {
-            holder.push(letter)
-        } else if (closedBrackets.includes(letter)) {
-            const openPair = openBrackets[closedBrackets.indexOf(letter)]
-            if (holder[holder.length - 1] === openPair) {
-                holder.splice(-1, 1)
-            } else {
-                holder.push(letter)
-                break
-            }
-        }
-    }
-    return (holder.length === 0) // return true if length is 0, otherwise false
-}
-
-const $checkQuotes = function (expr) {
-    if (expr[0] == '"' && expr.slice(-1) == '"') {
-        return true
-    } else {
-        return false
-    }
-}
-
-const writeReturnErr = function (fileName: string, newdata: string, add: boolean) {
-    fs.readFile(fileName, 'utf8', function (err, data) {
-        /* if (err) {
-            return
-        } */
-
-        let $ = newdata
-        if (add) {
-            $ = data += newdata
-        }
-
-        fs.writeFile(fileName, $, function (err) {
-            if (err) return console.log(err)
-        })
-    })
-}
-
-async function sleep(sec) {
-    return new Promise(resolve => setTimeout(resolve, sec * 1000));
-}
-
-const getArgs = function (cmd: string, limit: number, split: number) {
-    let $ = cmd.split(" ", limit)
-    $ = cmd.split($[split])
-
-    let returned = $[1].slice(1)
-    return returned
-}
-
-// helpers
-
-const makeVariable = function ($name: string, $value: any, $function, $type: string = "undefined") {
-    if ($function == "null") {
-        if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
-            variables.push(
-                {
-                    name: 'val:' + $name.split(" = ")[0],
-                    val: $value,
-                    function: "null",
-                    __type: $type
-                }
-            )
-        } else {
-            getVariable('val:' + $name.split(" = ")[0], $function).val = $value
-        }
-    } else {
-        if (getVariable('$:' + $name.split(" = ")[0], $function) == null) {
-            variables.push(
-                {
-                    name: '$:' + $name.split(" = ")[0] + "__&func:" + $function,
-                    val: $value,
-                    function: $function,
-                    __type: $type
-                }
-            )
-        } else {
-            getVariable('$:' + $name.split(" = ")[0], $function).val = $value
-        }
-    }
-}
-
-const getVariable = function ($name: string, $function: string = "null") {
-    if ($function == "null") {
-        for (let variable of variables) {
-            if (variable.name == $name) {
-                return variable
-            }
-        }
-    } else {
-        for (let variable of variables) {
-            if (variable.name == $name && $function == variable.function) {
-                return variable
-            }
-        }
-    }
-}
-
-const getFunction = function ($name: string) {
-    for (let func of functions) {
-        if (func.name == $name) {
-            return func
-        }
-    }
-}
-
-// Parsing helper functions
-
-const parseVariables = function ($content: string, $calling: string = "null", $add: string = "") {
-    $content = $content.split("//")[0]
-
-    let words = $content.split(" ")
-    for (let word of words) {
-        let $ = word + $add
-
-        let val = getVariable($, $calling)
-
-        if (val != null) {
-            if (val.function == "null") {
-                $content = $content.replace(word, getVariable($, $calling).val)
-            } else {
-                if ($calling = val.function) {
-                    $content = $content.replace(word, getVariable($, $calling).val)
-                }
-            }
-        }
-    }
-
-    let __words = $content.split(")")[0].split("(")
-
-    for (let word of __words) {
-        let $ = word + $add
-
-        let val = getVariable($, $calling)
-
-        if (val != null) {
-            if (val.function == "null") {
-                $content = $content.replace(word, getVariable($, $calling).val)
-            } else {
-                if ($calling = val.function) {
-                    $content = $content.replace(word, getVariable($, $calling).val)
-                }
-            }
-        }
-    }
-
-    return $content
-}
-
-let cmds = [ // list of allowed keywords
-    'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm',
-    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if', 'ifnot', 'rest',
-    '{/end}'
-]
-
-let $functions = [
-    'log', 'run'
-]
-
-const parseCommands = function ($content: string, $calling: string = "null") {
-    let words = $content.split(" ")
-
-    for (let word of words) {
-        if ($functions.includes(word) && $checkBrackets(word)) {
-            $content = $content.replace(word, handleCommand(word.split("(")[0], $calling))
-            console.log($content)
-        }
-    }
-
-    return $content
-}
-
-const parseCommands2 = function ($content: string, $calling: string = "null") {
-    let words = $content.split(" ")
-
-    for (let word of words) {
-        if ($checkBrackets(word.split("cmd:")[1])) {
-            if (parseFunction(word.split("cmd:")[1])) {
-                handleCommand(parseFunction(word.split("cmd:")[1]), $calling, "", 1)
-            }
-        }
-    }
-}
-
-const parseString = function ($content: string) {
-    return $content.split('"')[1].split('"')[0]
-}
-
-const parseFunction = function ($content: string) {
-    return $content.split(")")[0].split("(")[1]
-}
 
 // main
 
-let parsedLines = []
-let parseHold = []
+export let parsedLines = []
+export let parseHold = []
+let imported = [{
+    html: false,
+    css: false,
+    lua: false
+}]
 
 function getFromHold($name) {
     for (let value of parseHold) {
@@ -236,7 +59,7 @@ function getFromHold($name) {
     }
 }
 
-const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
+export const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
     cmd = cmd.replace("    ", "") // remove \t spaces
     cmd = cmd.replace("\t", "") // remove \t spaces
 
@@ -630,6 +453,8 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                 console.log(parsedLines)
             } else if ($_ == "dictionary") {
                 console.log(cmds)
+            } else if ($_ == "imported") {
+                console.log(imported)
             }
         }
         // ===============
@@ -650,6 +475,14 @@ const handleCommand = async function (cmd: string, callingFrom: string = "null",
                 require('child_process').exec(start + ' ' + url);
             } else {
                 handleCommand("SyntaxError Url not specified.", callingFrom, addToVariables, line)
+            }
+        } else if ($[0] == "import") {
+            let service = parseString(getArgs(cmd, 2, 0))
+
+            if (service) {
+                imported[0][service] = true
+            } else {
+                handleCommand("SyntaxError Service not defined.", callingFrom, addToVariables, line)
             }
         }
         // ===============
@@ -715,16 +548,10 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd
 process.title = "0a Basic Command Line"
 handleCommand('val $cd = "' + process.cwd() + '"')
 
-/*
-
-    ===========================================================================
-    0A TYPES
-
-    The following types are required for the language to function.
-    ===========================================================================
-
-*/
-
-interface cmd {
-    
+export default {
+    handleCommand,
+    variables,
+    functions,
+    parseHold,
+    parsedLines
 }

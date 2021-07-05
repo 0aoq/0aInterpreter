@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES5"
+    "target": "ES5", // node.js changes with higher ecmascript versions
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

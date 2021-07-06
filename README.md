@@ -1,27 +1,25 @@
 # 0a Interpreter
 
-- Author: [0a_oq](https://github.com/0aoq)
-- Version: 0.6.2
-
 ## About
 
-A very simple node command line basic programming language.
+I tried to create a basic programming language interpreter for a simple language with little features and simple syntax.
+
+Please note that I made this just for fun, and used it to learn more typescript than I already knew.
 
 ### Currently Includes
 
-- Multi-line parsing engine,
-- Basic commands for system management
-- Powerful utility commands
+- Simple syntax
+- Easy to use custom function system
 
 ## Links
 
 Sourced at: https://github.com/0aoq/0aInterpreter
 
-Documentation at: https://github.com/0aoq/0aDocumentation
+Documentation at: https://github.com/0aoq/0aDocumentation (Private repository for the time being.)
 
 ## License
 
-The 0a programming language is licensed under the **GNU Lesser General Public License v2.1** license.
+The 0a Interpreter is licensed under the **GNU Lesser General Public License v2.1** license.
 For more information of limits and permissions view [the license page](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html).
 
 https://github.com/0aoq/0aInterpreter/blob/main/LICENSE

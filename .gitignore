@@ -1,5 +1,9 @@
 node_modules/
-*.js
+
+package/*.js
+package/exports/*.js
+package/exports/custom/*.js
+
 scripts/
 package.json
 Source_with_compiled.zip

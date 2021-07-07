@@ -41,4 +41,10 @@
 
 - [helpers.0a](https://0aoq.github.io/0aInterpreter/?md/examples/helpers.md)
 
+## Custom Commands
+
+- [getArgs](https://0aoq.github.io/0aInterpreter/?md/api/customs/getArgs.md)
+- [getLineAfterCmd](https://0aoq.github.io/0aInterpreter/?md/api/customs/getLineAfterCmd.md)
+- [parseVariablesFromWords](https://0aoq.github.io/0aInterpreter/?md/api/customs/parseVariablesFromWords.md)
+
 <br><br>

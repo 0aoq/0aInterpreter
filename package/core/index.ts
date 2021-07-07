@@ -84,7 +84,7 @@ export const createCmdFromFile = function (name: string, multiline: boolean, run
     }
 }
 
-fs.readdir(__dirname + "/exports/custom", (err, files) => {
+fs.readdir(path.resolve("package", "exports", "custom"), (err, files) => {
     if (err) {
         console.log(err)
     }
@@ -92,7 +92,7 @@ fs.readdir(__dirname + "/exports/custom", (err, files) => {
     files.forEach(file => {
         if (file.split(".")[1] == "js") { // file extension
             setTimeout(() => {
-                require(__dirname + "/exports/custom/" + file)
+                require(path.resolve("package", "exports", "custom") + "/" + file)
             }, 100);
         }
     });
@@ -548,7 +548,7 @@ inquirer.prompt([{
     } else {
         promptcmd()
     }
-});
+})
 
 /* let dir_input = readline.createInterface({
     input: process.stdin,

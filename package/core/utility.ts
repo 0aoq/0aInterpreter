@@ -1,6 +1,7 @@
 import { handleCommand, variables, functions, parseHold, parsedLines } from "./index.js"
 
 const fs = require("fs")
+const colors = require("colors")
 
 export const $checkBrackets = function (expr) {
     const holder = []

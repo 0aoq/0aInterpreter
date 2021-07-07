@@ -28,5 +28,5 @@ end test
 run test (param = "123")
 ```
 
-Used in: [if](/?md/api/functions/if.md), [repeat](/?md/api/functions/repeat.md)<br>
-Run by: [run](/?md/api/keywords/run.md)
+Used in: [if](/https://0aoq.github.io/0aInterpreter/index.html?md/api/functions/if.md), [repeat](/https://0aoq.github.io/0aInterpreter/index.html?md/api/functions/repeat.md)<br>
+Run by: [run](/https://0aoq.github.io/0aInterpreter/index.html?md/api/keywords/run.md)

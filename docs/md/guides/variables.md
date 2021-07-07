@@ -9,4 +9,4 @@ log val:test
 
 Variables must be declared using `val:` before the name, so that the variable is parsed properly.
 
-To understand variables as parameters for functions, please read [learn functions](/?md/guides/learnfunc.md).
+To understand variables as parameters for functions, please read [learn functions](/https://0aoq.github.io/0aInterpreter/index.html?md/guides/learnfunc.md).

@@ -1,0 +1,12 @@
+# Compiled
+*.js
+
+# Examples
+scripts/
+
+# Node
+package.json
+node_modules/
+
+# Extras
+Source_with_compiled.zip

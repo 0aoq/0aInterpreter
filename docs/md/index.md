@@ -9,7 +9,7 @@
 ### Keywords
 
 - [keywords/debug](/index.html?md/api/keywords/debug.md)
-- [keywords/func](/index.html?md/api/keywords/func.md)
+- [keywords/func](https://0aoq.github.io/0aInterpreter/?md/api/keywords/func.md)
 - [keywords/run](/index.html?md/api/keywords/run.md)
 
 ### Functions

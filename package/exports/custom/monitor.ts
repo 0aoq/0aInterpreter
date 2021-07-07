@@ -1,5 +1,5 @@
-import { createCmdFromFile } from '../../index.js';
-import { getArgs} from '../utility.js';
+import { createCmdFromFile } from '../../core/index.js';
+import { getArgs} from '../../core/utility.js';
 
 let clui = require("clui")
 let os = require('os')

@@ -1,4 +1,4 @@
-import { createCmdFromFile } from '../../index.js';
+import { createCmdFromFile } from '../../core/index.js';
 
 let clui = require("clui")
 

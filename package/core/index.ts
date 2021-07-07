@@ -29,9 +29,9 @@ import {
     makeVariable,
     parseFunction,
     parseVariablesFromWords
-} from './exports/utility.js'
+} from './utility.js'
 
-import { parse } from './exports/parse.js'
+import { parse } from '../exports/parse.js'
 
 http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });

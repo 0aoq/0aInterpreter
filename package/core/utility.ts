@@ -1,4 +1,4 @@
-import { handleCommand, variables, functions, parseHold, parsedLines } from "../index.js"
+import { handleCommand, variables, functions, parseHold, parsedLines } from "./index.js"
 
 const fs = require("fs")
 

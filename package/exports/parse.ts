@@ -1,5 +1,5 @@
-import { handleCommand, parseHold, parsedLines, getFromHold, multi_line_required, findCmd, getLineAfterCmd } from "../index.js"
-import { getArgs, getBoolean, cmds } from './utility.js'
+import { handleCommand, parseHold, parsedLines, getFromHold, multi_line_required, findCmd, getLineAfterCmd } from "../core/index.js"
+import { getArgs, getBoolean, cmds } from '../core/utility.js'
 
 const colors = require('colors')
 const fs = require('fs')

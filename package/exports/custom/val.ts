@@ -1,5 +1,5 @@
-import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../index.js';
-import { $checkQuotes, getArgs, getVariable, makeVariable } from '../utility.js';
+import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../core/index.js';
+import { $checkQuotes, getArgs, getVariable, makeVariable } from '../../core/utility.js';
 
 createCmdFromFile("val", false, function ($) {
     let $name = getLineAfterCmd($.cmd, 'val').slice(1)

@@ -1,5 +1,5 @@
-import { createCmdFromFile, handleCommand } from '../../index.js';
-import { $checkBrackets, $checkQuotes, getArgs, getVariable, parseFunction, parseString, parseVariablesFromWords } from '../utility.js';
+import { createCmdFromFile, handleCommand } from '../../core/index.js';
+import { $checkBrackets, $checkQuotes, getArgs, getVariable, parseFunction, parseString, parseVariablesFromWords } from '../../core/utility.js';
 
 createCmdFromFile("log", false, function ($) {
     $.cmd = parseVariablesFromWords($.cmd, $.callingFrom, $.addToVariables)

@@ -1,6 +1,6 @@
 node_modules/
 
-package/*.js
+package/core/*.js
 package/exports/*.js
 package/exports/custom/*.js
 

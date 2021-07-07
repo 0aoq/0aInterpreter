@@ -1,5 +1,9 @@
 # Change log
 
+# Notice
+
+This change log is no longer maintained, for a full history on updates to the 0aInterpreter, please use the [main github repository history](https://github.com/0aoq/0aInterpreter/commits/main).
+
 ## 7/4/2021
 
 ### Api Changes

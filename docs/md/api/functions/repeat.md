@@ -9,4 +9,4 @@ Loop code every `x` seconds `y` times
 repeat {/s} &;actions {/set} &;every i &;i
 ```
 
-See: [function](index.html?md/api/keywords/func.md)
+See: [function](https://0aoq.github.io/0aInterpreter/?md/api/keywords/func.md)

@@ -20,7 +20,7 @@ func logTest{/s}
 {/end} logTest
 ```
 
-Functions are run with the [run](index.html?md/keywords/run.md) command. The following will run our newly made function.
+Functions are run with the [run](https://0aoq.github.io/0aInterpreter/?md/keywords/run.md) command. The following will run our newly made function.
 
 ```
 run logTest ()
@@ -42,7 +42,7 @@ run logTest (logThis = Hello, world!)
 // expected output: Hello, world!
 ```
 
-The different types of variables are explained in the [understanding variables](index.html?md/guides/variables.md) guide. For information on function limits, please view the [api](index.html?md/api/keywords/func.md).
+The different types of variables are explained in the [understanding variables](https://0aoq.github.io/0aInterpreter/?md/guides/variables.md) guide. For information on function limits, please view the [api](https://0aoq.github.io/0aInterpreter/?md/api/keywords/func.md).
 
 The ending code from this guide looks like:
 

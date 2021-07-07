@@ -1,8 +1,8 @@
 # 0a Documentation
 0a is a basic programming language for system management, it is focused around readability and simplicity. 
 
-- [Information](/index.html?md/info.md)
-- [Changes](/index.html?md/changelog.md)
+- [Information](https://0aoq.github.io/0aInterpreter/?md/info.md)
+- [Changes](https://0aoq.github.io/0aInterpreter/?md/changelog.md)
 
 ## 0a Types
 

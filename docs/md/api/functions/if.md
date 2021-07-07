@@ -19,4 +19,4 @@ run ifTest (param1 = hello; param2 = testing)
 // expected output: false
 ```
 
-See: [function](/https://0aoq.github.io/0aInterpreter/index.html?md/api/keywords/func.md)
+See: [function](/https://0aoq.github.io/0aInterpreter/https://0aoq.github.io/0aInterpreter/index.html?md/api/keywords/func.md)

@@ -1,6 +1,6 @@
 # helpers.0a
 
-The following is a function that is useful for organizing the [mk](/https://0aoq.github.io/0aInterpreter/index.html?md/api/files/mk.md) command.
+The following is a function that is useful for organizing the [mk](/https://0aoq.github.io/0aInterpreter/https://0aoq.github.io/0aInterpreter/index.html?md/api/files/mk.md) command.
 
 ```
 func makeFile{/s}

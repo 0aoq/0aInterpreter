@@ -28,5 +28,5 @@ end test
 run test (param = "123")
 ```
 
-Used in: [if](/index.html?md/api/functions/if.md), [repeat](/index.html?md/api/functions/repeat.md)<br>
-Run by: [run](/index.html?md/api/keywords/run.md)
+Used in: [if](/?md/api/functions/if.md), [repeat](/?md/api/functions/repeat.md)<br>
+Run by: [run](/?md/api/keywords/run.md)

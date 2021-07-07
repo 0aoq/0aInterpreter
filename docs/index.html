@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" href="styles/codeglow.css">
 
-    <script type="module" src="/node_modules/zero-md/dist/zero-md.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/gh/zerodevx/zero-md@2/dist/zero-md.min.js"></script>
 </head>
 
 <body class="ui-js">
@@ -40,15 +40,15 @@
         <nav class="pad-full-1_2 box-shadow text-center mb-50px ui-fixed-nav">
             <div class="flex flex-just-center" style="gap: 1.5em;">
                 <a class="text small pagetitle" href="index.html">Error 404 - Return Home</a>
-                <a class="text small" href="index.html?md/index.md">Home</a>
-                <a class="text small" href="index.html?md/changelog.md">Change Log</a>
+                <a class="text small" href="?md/index.md">Home</a>
+                <a class="text small" href="?md/changelog.md">Change Log</a>
             </div>
         </nav>
 
         <div class="flex flex-just-center mt-125px">
             <div class="wd-full" id="mdbox">
                 <div class="card onhover select box-shadow maxcontent mb-25px active" style="width: 100%;">
-                    <span>The <a href="index.html?md/api/functions/log.md">log</a> command is now a file loaded command! Performance is not affected.</span>
+                    <span>The <a href="?md/api/functions/log.md">log</a> command is now a file loaded command! Performance is not affected.</span>
                 </div>
             </div>
         </div>
@@ -56,7 +56,7 @@
 
     <script>
         if (!window.location.search.slice(1)) {
-            window.location = "index.html?md/index.md"
+            window.location = "?md/index.md"
         }
 
         document.title = window.location.search.slice(1)

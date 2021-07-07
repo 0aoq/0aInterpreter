@@ -19,4 +19,4 @@ run ifTest (param1 = hello; param2 = testing)
 // expected output: false
 ```
 
-See: [function](/index.html?md/api/keywords/func.md)
+See: [function](/?md/api/keywords/func.md)

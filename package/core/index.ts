@@ -28,7 +28,8 @@ import {
     writeReturnErr,
     makeVariable,
     parseFunction,
-    parseVariablesFromWords
+    parseVariablesFromWords,
+    math
 } from './utility.js'
 
 import { parse } from '../exports/parse.js'
@@ -84,7 +85,7 @@ export const createCmdFromFile = function (name: string, multiline: boolean, run
     }
 }
 
-fs.readdir(path.resolve("package", "exports", "custom"), (err, files) => {
+fs.readdir(path.resolve(__dirname, "../", "exports", "custom"), (err, files) => {
     if (err) {
         console.log(err)
     }
@@ -92,7 +93,7 @@ fs.readdir(path.resolve("package", "exports", "custom"), (err, files) => {
     files.forEach(file => {
         if (file.split(".")[1] == "js") { // file extension
             setTimeout(() => {
-                require(path.resolve("package", "exports", "custom") + "/" + file)
+                require(path.resolve(__dirname, "../", "exports", "custom") + "/" + file)
             }, 100);
         }
     });
@@ -138,13 +139,15 @@ export const getLineAfterCmd = function (cmd: string, splitBy: string) {
 // run
 
 export const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
+    // all new required commands should be created in a custom command file.
+    
     cmd = cmd.replace("    ", "") // remove \t spaces
     cmd = cmd.replace("\t", "") // remove \t spaces
 
     let $ = cmd.split(" ")
 
     if ($) {
-        if ($[0] == "//") { return }
+        if ($[0] == "#") { return }
 
         // ===============
         // UTILITY
@@ -434,34 +437,11 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             }
         } else if (!cmd.split(" ") || !cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
-            if (isNaN(parseInt(cmd.split(" ")[0]))) {
+            if (isNaN(parseInt(parseFunction(cmd).split(" ")[0]))) {
                 handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
             } else {
-                let $_ = cmd.split(" ")
-                let $operation = $_[1]
-
-                if ($operation == "+") {
-                    if (parseInt($_[0]) && parseInt($_[2])) {
-                        console.log(parseInt($_[0]) + parseInt($_[2]))
-                    }
-                } else if ($operation == "-") {
-                    if (parseInt($_[0]) && parseInt($_[2])) {
-                        console.log(parseInt($_[0]) - parseInt($_[2]))
-                    }
-                } else if ($operation == "*") {
-                    if (parseInt($_[0]) && parseInt($_[2])) {
-                        console.log(parseInt($_[0]) * parseInt($_[2]))
-                    }
-                } else if ($operation == "/") {
-                    if (parseInt($_[0]) && parseInt($_[2])) {
-                        console.log(parseInt($_[0]) / parseInt($_[2]))
-                    }
-                } else if ($operation == "^") {
-                    if (parseInt($_[0]) && parseInt($_[2])) {
-                        Math.pow(parseInt($_[0]), parseInt($_[2]))
-                    }
-                } else {
-                    handleCommand(`SyntaxError Operator not supported/undefined.`, callingFrom, addToVariables, line)
+                if ($checkBrackets(cmd) && parseFunction(cmd)) {
+                    math(parseFunction(cmd))
                 }
             }
         }
@@ -516,13 +496,17 @@ inquirer.prompt([{
             message: 'Where would you like to load files from? (cd/scripts)',
         }]).then(($answers) => {
             if ($answers.filelocation == "") {
-                fs.readdir(process.cwd() + "/scripts", (err, files) => {
+                const __path = path.resolve(process.cwd(), "scripts")
+
+                // LOAD .0a FILES FROM WORKING DIRECTORY/scripts
+
+                fs.readdir(__path, (err, files) => {
                     if (err) {
                         return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
                     } else {
                         files.forEach(file => {
                             setTimeout(() => {
-                                handleCommand("exec " + process.cwd() + "/scripts" + "/" + file)
+                                handleCommand("exec " + path.resolve(__path, file))
                             }, 100);
                         });
 
@@ -530,6 +514,8 @@ inquirer.prompt([{
                     }
                 });
             } else {
+                // LOAD .0a FILES FROM DIRECT LOCATION
+
                 fs.readdir($answers.filelocation, (err, files) => {
                     if (err) {
                         return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
@@ -577,7 +563,7 @@ dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd
 // defaults
 
 process.title = "0a Basic Command Line"
-handleCommand('val $cd = "' + process.cwd() + '"')
+handleCommand('val $cd = "' + process.cwd() + '"') // SET val:$cd TO BE THE WORKING DIRECTORY
 
 export default {
     handleCommand,

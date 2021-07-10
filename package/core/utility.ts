@@ -231,7 +231,7 @@ export const splitFlags = function ($string: string, flag: string) {
     return $string.split("--" + flag)
 }
 
-export const parseVariablesFromWords = function(s, callingFrom, addToVariables) {
+export const parseVariablesFromWords = function (s, callingFrom, addToVariables) {
     let $ = s.split(" ")
 
     for (const $_ of $) { // parse all variables from every word
@@ -239,6 +239,45 @@ export const parseVariablesFromWords = function(s, callingFrom, addToVariables) 
     }
 
     return s
+}
+
+export const math = function (cmd) {
+    const spaces = cmd.split(" ")
+
+    for (let space of spaces) {
+        if (!isNaN(parseInt(space))) {
+            let index = spaces.indexOf(space)
+
+            let operator = spaces[index + 1]
+
+            let num1 = parseInt(spaces[index])
+            let num2 = parseInt(spaces[index + 2])
+
+            let supportedOperators = ['+', '-', '*', '/', '^', '_/']
+
+            if (!isNaN(num2) && !isNaN(num1) && supportedOperators.includes(operator)) {
+                if (operator == "+") {
+                    console.log(num1 + num2)
+                } else if (operator == "-") {
+                    console.log(num1 - num2)
+                } else if (operator == "*") {
+                    console.log(num1 * num2)
+                } else if (operator == "/") {
+                    console.log(num1 / num2)
+                } else if (operator == "^") {
+                    console.log(Math.pow(num1, num2))
+                } else {
+                    handleCommand(`SyntaxError Operator not supported/undefined.`)
+                }
+            } else if (!isNaN(num1) && supportedOperators.includes(operator)) {
+                if (operator == "_/") {
+                    console.log(Math.sqrt(num1))
+                } else {
+                    handleCommand(`SyntaxError Operator not supported/undefined.`)
+                }
+            }
+        }
+    }
 }
 
 // exports
@@ -267,5 +306,6 @@ export default { // every default function
     sleep,
     writeReturnErr,
     makeVariable,
-    splitFlags
+    splitFlags,
+    math
 };

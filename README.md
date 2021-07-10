@@ -15,7 +15,7 @@ Please note that I made this just for fun, and used it to learn more typescript 
 
 Sourced at: https://github.com/0aoq/0aInterpreter
 
-Documentation at: https://github.com/0aoq/0aDocumentation (Private repository for the time being.)
+Documentation at: https://0aoq.github.io/0aInterpreter ([0aInterpreter/docs](https://github.com/0aoq/0aInterpreter/tree/main/docs))
 
 ## License
 

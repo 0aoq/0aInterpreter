@@ -1,28 +1,35 @@
-import { createCmdFromFile, handleCommand } from '../../core/index.js';
+import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../core/index.js';
 import { $checkBrackets, $checkQuotes, getArgs, getVariable, parseFunction, parseString, parseVariablesFromWords } from '../../core/utility.js';
 
 createCmdFromFile("log", false, function ($) {
     $.cmd = parseVariablesFromWords($.cmd, $.callingFrom, $.addToVariables)
+    let after = getLineAfterCmd($.cmd, "log")
+    
     // really long error handling section
-    if (parseFunction(getArgs($.cmd, 2, 0))[0] === '"') { // is a string
-        if ($checkBrackets($.cmd.slice(4))) {
-            if ($checkQuotes(parseFunction(getArgs($.cmd, 2, 0)))) {
-                console.log(parseString(parseFunction(getArgs($.cmd, 2, 0))))
+    if (parseFunction(after)[0] === '"') { // is a string
+        if ($checkBrackets(after)) {
+            if ($checkQuotes(parseFunction(after))) {
+                console.log(parseString(parseFunction(after)))
             } else {
                 handleCommand("SyntaxError quotes weren't closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
             }
         } else {
             handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
         }
-    } else if (getVariable(parseFunction(getArgs($.cmd, 2, 0))) || !isNaN(parseInt(parseFunction(getArgs($.cmd, 2, 0))))) { // is a variable/int
-        if ($checkBrackets($.cmd.slice(4))) {
-            if (getVariable(parseFunction(getArgs($.cmd, 2, 0)))) { // specific for variable
-                console.log(getVariable(parseFunction(getArgs($.cmd, 2, 0))).val)
+    } else if (getVariable(parseFunction(after)) || !isNaN(parseInt(parseFunction(after)))) { // is a variable/int
+        if ($checkBrackets(after)) {
+            if (getVariable(parseFunction(after))) { // specific for variable
+                let variable = getVariable(parseFunction(after))
+                if (variable.__type == "table") {
+                    console.log(JSON.parse(variable.val)) // parse to table
+                } else {
+                    console.log(variable.val)
+                }
             } else {
-                if (!isNaN(parseInt(parseFunction(getArgs($.cmd, 2, 0))))) { // number
-                    console.log(parseInt(parseFunction(getArgs($.cmd, 2, 0))))
+                if (!isNaN(parseInt(parseFunction(after)))) { // number
+                    console.log(parseInt(parseFunction(after)))
                 } else { // any
-                    console.log(parseFunction(getArgs($.cmd, 2, 0)))
+                    console.log(parseFunction(after))
                 }
             }
         } else {

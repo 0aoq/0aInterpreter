@@ -538,33 +538,9 @@ inquirer.prompt([{
     }
 })
 
-/* let dir_input = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-})
-
-dir_input.question("[&] Load files from directory: (cd/scripts) ", function (cmd) {
-    cmd = cmd || process.cwd() + "/scripts"
-    fs.readdir(cmd, (err, files) => {
-        if (err) {
-            console.log(err)
-        }
-
-        files.forEach(file => {
-            setTimeout(() => {
-                handleCommand("exec " + cmd + "/" + file)
-            }, 100);
-        });
-
-        promptcmd()
-    });
-
-    dir_input.close()
-}) */
-
 // defaults
 
-process.title = "0a Basic Command Line"
+process.title = "0a Basic Command Line" // IF LAUNCHING FROM A COMMAND LINE, SET THE TITLE
 handleCommand('val $cd = "' + process.cwd() + '"') // SET val:$cd TO BE THE WORKING DIRECTORY
 
 export default {
@@ -582,6 +558,6 @@ export default {
 }
 
 process.on('uncaughtException', (error)  => {
-    console.log('0aInterpreter has encountered an error: ' + colors.bold(colors.red(error)));
-    process.exit(1); // exit application 
+    console.log('0aInterpreter has encountered an error: ' + colors.bold(colors.red(error)))
+    process.exit(1)
 })

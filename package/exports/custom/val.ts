@@ -1,8 +1,8 @@
 import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../core/index.js';
-import { $checkQuotes, getArgs, getVariable, makeVariable } from '../../core/utility.js';
+import { $checkBrackets, $checkQuotes, getArgs, getVariable, makeVariable } from '../../core/utility.js';
 
 createCmdFromFile("val", false, function ($) {
-    let $name = getLineAfterCmd($.cmd, 'val').slice(1)
+    let $name = getLineAfterCmd($.cmd, 'val')
     let $value = $name.split(" = ")[1]
 
     if (isNaN(parseInt($value))) {
@@ -12,6 +12,12 @@ createCmdFromFile("val", false, function ($) {
                     makeVariable($name, $value.split('"')[1].split('"')[0], $.callingFrom || null, "string")
                 } else {
                     handleCommand("SyntaxError string was not closed properly.", $.callingFrom, $.addToVariables, $.line)
+                }
+            } else if ($value[0] == '{') {
+                if ($checkBrackets($value)) {
+                    makeVariable($name, $value, $.callingFrom || null, "table")
+                } else {
+                    handleCommand("SyntaxError brackets not opened and closed properly.", $.callingFrom, $.addToVariables, $.line)
                 }
             } else {
                 makeVariable($name, $value, $.callingFrom || null)

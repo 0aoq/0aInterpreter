@@ -16,6 +16,12 @@ createCmdFromFile("log", false, function ($) {
         } else {
             handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
         }
+    } else if (parseFunction(after)[0] == "{") {
+        if ($checkBrackets(after)) {
+            console.log(JSON.parse(parseFunction(after)))
+        } else {
+            handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
+        }
     } else if (getVariable(parseFunction(after)) || !isNaN(parseInt(parseFunction(after)))) { // is a variable/int
         if ($checkBrackets(after)) {
             if (getVariable(parseFunction(after))) { // specific for variable

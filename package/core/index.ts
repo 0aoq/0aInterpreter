@@ -437,12 +437,18 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
             }
         } else if (!cmd.split(" ") || !cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
-            if (isNaN(parseInt(parseFunction(cmd).split(" ")[0]))) {
-                handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
-            } else {
-                if ($checkBrackets(cmd) && parseFunction(cmd)) {
-                    math(parseFunction(cmd))
+            if (cmd.split(" ")[1]) {
+                if (parseFunction(cmd) && isNaN(parseInt(parseFunction(cmd).split(" ")[0]))) {
+                    handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
+                } else {
+                    if ($checkBrackets(cmd) && parseFunction(cmd)) {
+                        math(parseFunction(cmd))
+                    } else {
+                        handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
+                    }
                 }
+            } else {
+                handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
             }
         }
         // ===============

@@ -18,6 +18,7 @@
 - [functions/repeat](https://0aoq.github.io/0aInterpreter/?md/api/functions/repeat.md)
 - [functions/log](https://0aoq.github.io/0aInterpreter/?md/api/functions/log.md)
 - [functions/sleep](https://0aoq.github.io/0aInterpreter/?md/api/functions/sleep.md)
+- [functions/for](https://0aoq.github.io/0aInterpreter/?md/api/functions/for.md)
 
 ### File System
 

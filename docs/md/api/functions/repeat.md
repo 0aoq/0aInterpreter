@@ -1,4 +1,8 @@
 # repeat
+
+| **Deprecation Warning:** `repeat` is deprecated. Please use `for` instead. |
+|:-:|
+
 Loop code every `x` seconds `y` times
 
 - actions: **(0a)**

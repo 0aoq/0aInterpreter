@@ -465,7 +465,9 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
 
 // question prompt
 
-console.log("[!] Module base loaded correctly.")
+console.log('')
+console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.6.2')
+console.log('')
 
 const promptcmd = function () {
     let cmd_input = readline.createInterface({
@@ -578,3 +580,8 @@ export default {
     findCmd,
     getLineAfterCmd
 }
+
+process.on('uncaughtException', (error)  => {
+    console.log('0aInterpreter has encountered an error: ' + colors.bold(colors.red(error)));
+    process.exit(1); // exit application 
+})

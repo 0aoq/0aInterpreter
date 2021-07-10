@@ -133,7 +133,7 @@ export const findCmd = function (cmd, list = cmds) {
 }
 
 export const getLineAfterCmd = function (cmd: string, splitBy: string) {
-    return cmd.split(splitBy)[1]
+    return cmd.split(splitBy)[1].slice(1)
 }
 
 // run

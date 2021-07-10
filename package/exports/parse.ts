@@ -3,12 +3,13 @@ import { getArgs, getBoolean, cmds } from '../core/utility.js'
 
 const colors = require('colors')
 const fs = require('fs')
+const path = require('path')
 
 export function parse(cmd: string, callingFrom: string, addToVariables: string, line: number) {
     let returned = getLineAfterCmd(cmd, "exec")
 
     if (returned.split(".")[1] === "0a") {
-        fs.readFile(returned, 'utf8', function (err, data) {
+        fs.readFile(returned, 'utf-8', function (err, data) {
             if (err) {
                 return console.log(colors.bold(colors.red(`Error: ${err}`)))
             }

@@ -61,8 +61,15 @@
 
         document.title = window.location.search.slice(1)
         document.querySelector(".pagetitle").innerText = window.location.search.slice(1)
-        document.getElementById("mdbox").innerHTML += `
-<zero-md src="${window.location.search.slice(1)}" no-shadow="true"></zero-md>`
+
+        const id = window.location.search.slice(1)
+
+        if (id.split("://").includes("https") || id.split("://").includes("https") && id.split("/").includes("md")) { // basic url prevention security
+            console.error('Security: Cannot load files from a url.')
+        } else {
+            document.getElementById("mdbox").innerHTML += `
+<zero-md src="${id}" no-shadow="true"></zero-md>`
+        }
     </script>
 
     <script src="styles/ui.js" ui-autorender></script>

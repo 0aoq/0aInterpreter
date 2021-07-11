@@ -434,7 +434,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
 // question prompt
 
 console.log('')
-console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.6.2')
+console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.7.0')
 console.log('')
 
 const promptcmd = function () {

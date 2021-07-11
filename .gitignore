@@ -4,6 +4,5 @@ package/core/*.js
 package/exports/*.js
 package/exports/custom/*.js
 
+# Folder including all tests done during early development
 scripts/
-package.json
-Source_with_compiled.zip

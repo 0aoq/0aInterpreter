@@ -1,7 +1,7 @@
 import { createCmdFromFile, imported, handleCommand, getFromHold } from '../../core/index.js';
 import { getArgs, splitFlags } from '../../core/utility.js';
 
-const fs = require('fs')
+import * as fs from 'fs'
 
 createCmdFromFile("lua.new", true, function ($) {
     if (imported[0].lua === true) {

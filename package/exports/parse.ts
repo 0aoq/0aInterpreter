@@ -2,8 +2,8 @@ import { handleCommand, parseHold, parsedLines, getFromHold, multi_line_required
 import { getArgs, getBoolean, cmds } from '../core/utility.js'
 
 const colors = require('colors')
-const fs = require('fs')
-const path = require('path')
+import * as fs from 'fs'
+import * as path from 'path'
 
 export function parse(cmd: string, callingFrom: string, addToVariables: string, line: number) {
     let returned = getLineAfterCmd(cmd, "exec")

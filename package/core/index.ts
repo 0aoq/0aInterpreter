@@ -1,37 +1,16 @@
 // npx tsc parse.ts
 // node parse.js
 
-const readline = require('readline')
-const fs = require('fs')
-const path = require('path')
-const http = require('http')
-const colors = require('colors');
+import * as readline from 'readline'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as http from 'http'
+const colors = require("colors") // node module doesn't work well with import, ???
 
-const inquirer = require('inquirer')
-const clui = require('clui')
+import * as inquirer from 'inquirer'
+import * as clui from 'clui'
 
-import {
-    returnValue,
-    getFromReturned,
-    getArgs,
-    getFunction,
-    getVariable,
-    parseString,
-    parseVariables,
-    parseCommands,
-    parseCommands2,
-    $checkBrackets,
-    $checkQuotes,
-    cmds,
-    $functions,
-    sleep,
-    writeReturnErr,
-    makeVariable,
-    parseFunction,
-    parseVariablesFromWords,
-    math
-} from './utility.js'
-
+import * as utility from './utility.js'
 import { parse } from '../exports/parse.js'
 
 http.createServer(function (req, res) {
@@ -39,7 +18,7 @@ http.createServer(function (req, res) {
 
     res.write(`
     <script>
-        window.location = "https://github.com/0aoq/0aDocumentation"
+        window.location = "https://0aoq.github.io/0aInterpreter"
     </script>
     `);
 
@@ -109,15 +88,7 @@ function getFromCustomCmds(name: string) {
 
 // cmd functions
 
-async function cmds__repeat_worker($do, $amount, $every) {
-    var i
-    for (i = 0; i < $amount; i++) {
-        handleCommand($do)
-        await sleep($every)
-    }
-}
-
-export const findCmd = function (cmd, list = cmds) {
+export const findCmd = function (cmd, list = utility.cmds) {
     let split = cmd.split(" ")
     let __indexed = 0
 
@@ -153,33 +124,24 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // UTILITY
         // ===============
         if ($[0] == "val") { // &;cmd[val]
-            let $name = getArgs(cmd, 2, 0)
+            let $name = utility.getArgs(cmd, 2, 0)
             let $value = $name.split(" = ")[1]
 
             if (isNaN(parseInt($value))) {
-                if (!getVariable($value)) {
+                if (!utility.getVariable($value)) {
                     if ($value[0] == '"') {
-                        if ($checkQuotes($value)) {
-                            makeVariable($name, $value.split('"')[1].split('"')[0], callingFrom || null, "string")
+                        if (utility.$checkQuotes($value)) {
+                            utility.makeVariable($name, $value.split('"')[1].split('"')[0], callingFrom || null, "string")
                         } else {
                             handleCommand("SyntaxError string was not closed properly.", callingFrom, addToVariables, line)
                         }
                     } else {
-                        makeVariable($name, $value, callingFrom || null)
+                        utility.makeVariable($name, $value, callingFrom || null)
                     }
                 }
             } else if (!isNaN(parseInt($value))) {
-                makeVariable($name, parseInt($value), callingFrom || null, "int")
+                utility.makeVariable($name, parseInt($value), callingFrom || null, "int")
             }
-        } else if ($[0] == "repeat") { // &;cmd[repeat]
-            // repeat {/s} run makeFile {/args} makeDir = true {/arg} fileName = test/repeatThing.txt {/arg} {/set} 1 i 4
-            $ = cmd.split(" ")
-            let returned = cmd.split(" {/s} ")[1].split(" {/set} ")
-            let $do = returned[0]
-            let $amount = returned[1].split(" i ")[1]
-            let $every = returned[1].split(" i")[0]
-
-            cmds__repeat_worker($do, $amount, $every)
             // ===============
             // FUNCTIONS
             // ===============
@@ -187,9 +149,9 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
             // func test{/s}log Hello, World!{/and}log New line
             // run test
 
-            let $name = getArgs(cmd, 2, 0).split(" do")[0]
+            let $name = utility.getArgs(cmd, 2, 0).split(" do")[0]
 
-            if (getFunction($name) == null && $name != "null") {
+            if (utility.getFunction($name) == null && $name != "null") {
                 functions.push({
                     name: $name,
                     run: getFromHold($name).lines,
@@ -199,38 +161,38 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 setTimeout(() => {
                     getFromHold($name).lines = ['parsed', `line: ${getFromHold($name).on}`]
                 }, 10);
-            } else if (getFunction($name).run[0].split(" ")[0] != "func") { // fix strange error on nested functions where it would try to duplicate
+            } else if (utility.getFunction($name).run[0].split(" ")[0] != "func") { // fix strange error on nested functions where it would try to duplicate
                 return handleCommand(`SyntaxError Function has already been declared.`, callingFrom, addToVariables, line)
             }
         } else if ($[0] == "run") { // &;cmd[run]
-            if (getArgs(cmd, 2, 1) && $checkBrackets(getArgs(cmd, 2, 1))) {
-                let args = parseFunction(getArgs(cmd, 2, 1)).split("; ")
+            if (utility.getArgs(cmd, 2, 1) && utility.$checkBrackets(utility.getArgs(cmd, 2, 1))) {
+                let args = utility.parseFunction(utility.getArgs(cmd, 2, 1)).split("; ")
 
                 let returned = cmd.split(" ")[1]
 
-                if (getFunction(returned).name) {
-                    if (getFunction(returned).nestedto == "null" || getFunction(returned).nestedto == callingFrom) {
+                if (utility.getFunction(returned).name) {
+                    if (utility.getFunction(returned).nestedto == "null" || utility.getFunction(returned).nestedto == callingFrom) {
                         if (args) {
                             for (let arg of args) {
                                 let $name = arg.split(" = ")[0]
                                 let $value = arg.split(" = ")[1]
 
                                 for (let val of variables) {
-                                    if (val.function == getFunction(returned).name) {
+                                    if (val.function == utility.getFunction(returned).name) {
                                         val.name = "&;0a__val:reset"
                                         val.val = ""
                                     }
                                 }
 
-                                makeVariable($name, $value, getFunction(returned).name || "null")
+                                utility.makeVariable($name, $value, utility.getFunction(returned).name || "null")
                             }
                         }
 
-                        let uniqueId = "__&func:" + getFunction(returned).name
-                        for (let command of getFunction(returned).run) {
+                        let uniqueId = "__&func:" + utility.getFunction(returned).name
+                        for (let command of utility.getFunction(returned).run) {
                             command = command.replace("    ", "") // remove \t spaces
                             command = command.replace("\t", "") // remove \t spaces
-                            handleCommand(parseVariables(command, getFunction(returned).name, uniqueId), getFunction(returned).name, uniqueId)
+                            handleCommand(utility.parseVariables(command, utility.getFunction(returned).name, uniqueId), utility.getFunction(returned).name, uniqueId)
                         }
                     }
                 } else {
@@ -251,7 +213,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         } */
 
         if ($[0] == "SyntaxError") { // &;cmd[SyntaxErorr]
-            console.log(colors.bold(colors.red(`[!] (${line || 1}) SyntaxError: ${getArgs(cmd, 2, 0)}`)))
+            console.log(colors.bold(colors.red(`[!] (${line || 1}) SyntaxError: ${utility.getArgs(cmd, 2, 0)}`)))
         }
         // ===============
         // FILE SYSTEM
@@ -259,7 +221,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         else if ($[0] == "cd") { // &;cmd[cd]
             handleCommand('log (val:$cd)', callingFrom, addToVariables, line)
         } else if ($[0] == "read") { // &;cmd[read]
-            let returned = parseVariables(getArgs(cmd, 2, 0), callingFrom,)
+            let returned = utility.parseVariables(utility.getArgs(cmd, 2, 0), callingFrom,)
             console.log(returned)
 
             fs.readFile(returned, 'utf8', function (err, data) {
@@ -274,25 +236,25 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         } else if ($[0] == "clear") { // &;cmd[clear]
             console.clear()
         } else if ($[0] == "write") { // &;cmd[write]
-            let $name = getArgs(cmd, 2, 0).split(" ")[0]
-            let $data = getArgs(cmd, 2, 1)
-            parseVariables($name, callingFrom)
+            let $name = utility.getArgs(cmd, 2, 0).split(" ")[0]
+            let $data = utility.getArgs(cmd, 2, 1)
+            utility.parseVariables($name, callingFrom)
 
-            writeReturnErr($name, $data, false)
+            utility.writeReturnErr($name, $data, false)
         } else if ($[0] == "write_add") { // &;cmd[write_add]
-            let $name = getArgs(cmd, 2, 0).split(" ")[0]
-            let $data = getArgs(cmd, 2, 1)
-            parseVariables($name, callingFrom)
+            let $name = utility.getArgs(cmd, 2, 0).split(" ")[0]
+            let $data = utility.getArgs(cmd, 2, 1)
+            utility.parseVariables($name, callingFrom)
 
-            writeReturnErr($name, $data, true)
+            utility.writeReturnErr($name, $data, true)
         } else if ($[0] == "rm") { // &;cmd[rm]
             try {
-                fs.unlinkSync(getArgs(cmd, 2, 0));
+                fs.unlinkSync(utility.getArgs(cmd, 2, 0));
             } catch (err) {
                 return console.log(colors.bold(colors.red(`Error: ${err}`)))
             }
         } else if ($[0] == "listdir") { // &;cmd[listdir]
-            fs.readdir(getArgs(cmd, 2, 0), (err, files) => {
+            fs.readdir(utility.getArgs(cmd, 2, 0), (err, files) => {
                 if (err) {
                     return console.log(colors.bold(colors.red(`Error: ${err}`)))
                 }
@@ -310,7 +272,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 });
             }
 
-            fs.writeFile(parseVariables(cmd.split(" ")[2], callingFrom), "", function (err) {
+            fs.writeFile(utility.parseVariables(cmd.split(" ")[2], callingFrom), "", function (err) {
                 if (err) {
                     console.log(err)
                 } else {
@@ -320,7 +282,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         } else if ($[0] == "exec") { // &;cmd[exec]
             parse(cmd, callingFrom, addToVariables, line)
         } else if ($[0] == "if") { // &;cmd[if]
-            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
+            let func = utility.parseVariables(utility.getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
 
             let statement1 = func.split(" == ")[0]
             let statement2 = func.split(" == ")[1]
@@ -330,10 +292,10 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
             }
 
             if (statement1 == statement2) {
-                handleCommand(getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
+                handleCommand(utility.getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
             }
         } else if ($[0] == "ifnot") { // &;cmd[ifnot]
-            let func = parseVariables(getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
+            let func = utility.parseVariables(utility.getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
 
             let statement1 = func.split(" == ")[0]
             let statement2 = func.split(" == ")[1]
@@ -343,15 +305,15 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
             }
 
             if (statement1 != statement2) {
-                handleCommand(getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
+                handleCommand(utility.getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
             }
         }
         // ===============
         // MATHEMATICS
         // ===============
         else if ($[0] == "calc") { // &;cmd[calc]
-            let $_ = getArgs(cmd, 2, 0).split(" with ")[0].split(" ")
-            let $operation = getArgs(cmd, 2, 0).split(" with ")[1]
+            let $_ = utility.getArgs(cmd, 2, 0).split(" with ")[0].split(" ")
+            let $operation = utility.getArgs(cmd, 2, 0).split(" with ")[1]
 
             if ($operation == "+") {
                 if (parseInt($_[0]) && parseInt($_[1])) {
@@ -379,7 +341,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // DEBUG CMDS
         // ===============
         else if ($[0] == "debug") { // &;cmd[debug]
-            let $_ = getArgs(cmd, 2, 0)
+            let $_ = utility.getArgs(cmd, 2, 0)
 
             if ($_ == "variables") {
                 console.log(variables)
@@ -392,7 +354,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
             } else if ($_ == "parsedlines") {
                 console.log(parsedLines)
             } else if ($_ == "dictionary") {
-                console.log(cmds)
+                console.log(utility.cmds)
             } else if ($_ == "imported") {
                 console.log(imported)
             } else if ($_ == "customcmds") {
@@ -403,14 +365,14 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // UTIL FUNCTIONS
         // ===============
         else if ($[0] == "sleep") { // &;cmd[sleep]
-            if ($checkBrackets(cmd.slice(4))) {
+            if (utility.$checkBrackets(cmd.slice(4))) {
                 let split = cmd.slice(4).split(")")[0].split("(")[1]
-                await sleep(parseInt(split))
+                await utility.sleep(parseInt(split))
             } else {
                 handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
             }
         } else if ($[0] == "open") { // &;cmd[open]
-            let url = getArgs(cmd, 2, 0)
+            let url = utility.getArgs(cmd, 2, 0)
 
             if (url) {
                 var start = (process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open');
@@ -419,7 +381,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 handleCommand("SyntaxError Url not specified.", callingFrom, addToVariables, line)
             }
         } else if ($[0] == "import") {
-            let service = parseString(getArgs(cmd, 2, 0))
+            let service = utility.parseString(utility.getArgs(cmd, 2, 0))
 
             if (service) {
                 imported[0][service] = true
@@ -433,16 +395,16 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         else if ($[0] == "set") { // &;cmd[set]
             let returned = cmd.split(" ")[0]
 
-            if (getVariable('val:' + returned, callingFrom) != null) {
-                getVariable('val:' + returned, callingFrom).val = getArgs(cmd, 1, 0).split("= ")[1]
+            if (utility.getVariable('val:' + returned, callingFrom) != null) {
+                utility.getVariable('val:' + returned, callingFrom).val = utility.getArgs(cmd, 1, 0).split("= ")[1]
             }
-        } else if (!cmd.split(" ") || !cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
+        } else if (!cmd.split(" ") || !utility.cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
             if (cmd.split(" ")[1]) {
-                if (parseFunction(cmd) && isNaN(parseInt(parseFunction(cmd).split(" ")[0]))) {
+                if (utility.parseFunction(cmd) && isNaN(parseInt(utility.parseFunction(cmd).split(" ")[0]))) {
                     handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
                 } else {
-                    if ($checkBrackets(cmd) && parseFunction(cmd)) {
-                        math(parseFunction(cmd))
+                    if (utility.$checkBrackets(cmd) && utility.parseFunction(cmd)) {
+                        utility.math(utility.parseFunction(cmd))
                     } else {
                         handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
                     }
@@ -564,6 +526,6 @@ export default {
 }
 
 process.on('uncaughtException', (error)  => {
-    console.log('0aInterpreter has encountered an error: ' + colors.bold(colors.red(error)))
+    console.log('0aInterpreter has encountered an error: ' + colors.bold(colors.red(error.toString())))
     process.exit(1)
 })

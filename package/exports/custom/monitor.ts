@@ -1,8 +1,8 @@
 import { createCmdFromFile } from '../../core/index.js';
 import { getArgs} from '../../core/utility.js';
 
-let clui = require("clui")
-let os = require('os')
+import * as clui from 'clui'
+import * as os from 'os'
 
 createCmdFromFile("monitor", false, function ($) {
     let $for = parseInt(getArgs($.cmd, 2, 0))

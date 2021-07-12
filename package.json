@@ -1,8 +1,8 @@
 {
     "name": "0ainterpreter",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "description": "Basic node.js command line interpreter for a custom language.",
-    "main": "package/core/index.js",
+    "main": "package/core/npm.js",
     "dependencies": {
         "@types/node": "^16.3.1",
         "colors": "^1.4.0",
@@ -19,9 +19,9 @@
         "url": "git+https://github.com/0aoq/0aInterpreter.git"
     },
     "author": "0a_oq",
-    "license": "LICENSE",
+    "license": "LGPL-2.1",
     "bugs": {
         "url": "https://github.com/0aoq/0aInterpreter/issues"
     },
-    "homepage": "https://github.com/0aoq/0aInterpreter#readme"
+    "homepage": "https://0aoq.github.io/0aInterpreter/"
 }

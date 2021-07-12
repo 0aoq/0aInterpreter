@@ -2,7 +2,7 @@ node_modules/
 
 package/core/*.js
 package/exports/*.js
-package/exports/custom/*.js
+package/exports/custom/base/*.js
 
 # Folder including all tests done during early development
 scripts/

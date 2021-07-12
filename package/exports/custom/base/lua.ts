@@ -1,5 +1,5 @@
-import { createCmdFromFile, imported, handleCommand, getFromHold } from '../../core/index.js';
-import { getArgs, splitFlags } from '../../core/utility.js';
+import { createCmdFromFile, imported, handleCommand, getFromHold } from '../../../core/index.js';
+import { getArgs, splitFlags } from '../../../core/utility.js';
 
 import * as fs from 'fs'
 

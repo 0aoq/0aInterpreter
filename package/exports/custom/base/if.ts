@@ -1,5 +1,5 @@
-import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../core/index.js';
-import { $checkBrackets, parseVariables } from '../../core/utility.js';
+import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../../core/index.js';
+import { $checkBrackets, parseVariables } from '../../../core/utility.js';
 
 createCmdFromFile("if", false, function ($) {
     // experimental command: Currently undocumented, command has barely been tested.

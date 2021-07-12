@@ -1,5 +1,5 @@
-import { createCmdFromFile } from '../../core/index.js';
-import { getArgs} from '../../core/utility.js';
+import { createCmdFromFile } from '../../../core/index.js';
+import { getArgs} from '../../../core/utility.js';
 
 import * as clui from 'clui'
 import * as os from 'os'

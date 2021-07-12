@@ -66,19 +66,24 @@ export const createCmdFromFile = function (name: string, multiline: boolean, run
     }
 }
 
-fs.readdir(path.resolve(__dirname, "../", "exports", "custom"), (err, files) => {
-    if (err) {
-        console.log(err)
-    }
-
-    files.forEach(file => {
-        if (file.split(".")[1] == "js") { // file extension
-            setTimeout(() => {
-                require(path.resolve(__dirname, "../", "exports", "custom") + "/" + file)
-            }, 100);
+function searchDirForCmds(dir) {
+    fs.readdir(dir, (err, files) => {
+        if (err) {
+            console.log(err)
         }
+    
+        files.forEach(file => {
+            if (file.split(".")[1] == "js") { // file extension
+                setTimeout(() => {
+                    require(dir + "/" + file)
+                }, 100);
+            }
+        });
     });
-});
+}
+
+searchDirForCmds(path.resolve(__dirname, "../", "exports", "custom")) // custom cmds
+searchDirForCmds(path.resolve(__dirname, "../", "exports", "custom", "base")) // base built in cmds
 
 function getFromCustomCmds(name: string) {
     for (let datapoint of file_cmds) {
@@ -130,64 +135,6 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // ===============
         // FUNCTIONS
         // ===============
-        if ($[0] == "func") { // &;cmd[func]
-            // func test{/s}log Hello, World!{/and}log New line
-            // run test
-
-            let $name = utility.getArgs(cmd, 2, 0).split(" do")[0]
-
-            if (utility.getFunction($name) == null && $name != "null") {
-                functions.push({
-                    name: $name,
-                    run: getFromHold($name).lines,
-                    nestedto: callingFrom || "null"
-                })
-
-                setTimeout(() => {
-                    getFromHold($name).lines = ['parsed', `line: ${getFromHold($name).on}`]
-                }, 10);
-            } else if (utility.getFunction($name).run[0].split(" ")[0] != "func") { // fix strange error on nested functions where it would try to duplicate
-                return handleCommand(`SyntaxError Function has already been declared.`, callingFrom, addToVariables, line)
-            }
-        } else if ($[0] == "run") { // &;cmd[run]
-            if (utility.getArgs(cmd, 2, 1) && utility.$checkBrackets(utility.getArgs(cmd, 2, 1))) {
-                let args = utility.parseFunction(utility.getArgs(cmd, 2, 1)).split("; ")
-
-                let returned = cmd.split(" ")[1]
-
-                if (utility.getFunction(returned).name) {
-                    if (utility.getFunction(returned).nestedto == "null" || utility.getFunction(returned).nestedto == callingFrom) {
-                        if (args) {
-                            for (let arg of args) {
-                                let $name = arg.split(" = ")[0]
-                                let $value = arg.split(" = ")[1]
-
-                                for (let val of variables) {
-                                    if (val.function == utility.getFunction(returned).name) {
-                                        val.name = "&;0a__val:reset"
-                                        val.val = ""
-                                    }
-                                }
-
-                                utility.makeVariable($name, $value, $value, utility.getFunction(returned).name || "null")
-                            }
-                        }
-
-                        let uniqueId = "__&func:" + utility.getFunction(returned).name
-                        for (let command of utility.getFunction(returned).run) {
-                            command = command.replace("    ", "") // remove \t spaces
-                            command = command.replace("\t", "") // remove \t spaces
-                            handleCommand(utility.parseVariables(command, utility.getFunction(returned).name, uniqueId), utility.getFunction(returned).name, uniqueId)
-                        }
-                    }
-                } else {
-                    handleCommand(`SyntaxError Function "${returned}" does not exist.`, callingFrom, addToVariables, line)
-                }
-            } else {
-                handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
-            }
-        }
-
         // =================
         // VARIABLES ALLOWED
         // =================
@@ -205,65 +152,8 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // ===============
         else if ($[0] == "cd") { // &;cmd[cd]
             handleCommand('log (val:$cd)', callingFrom, addToVariables, line)
-        } else if ($[0] == "read") { // &;cmd[read]
-            let returned = utility.parseVariables(utility.getArgs(cmd, 2, 0), callingFrom,)
-            console.log(returned)
-
-            fs.readFile(returned, 'utf8', function (err, data) {
-                if (err) {
-                    console.log(colors.bold(colors.red(`SyntaxError: ${err}`)))
-                }
-
-                console.log('\x1b[32m%s\x1b[0m', '=====================')
-                console.log(data)
-                console.log('\x1b[32m%s\x1b[0m', '=====================')
-            })
         } else if ($[0] == "clear") { // &;cmd[clear]
             console.clear()
-        } else if ($[0] == "write") { // &;cmd[write]
-            let $name = utility.getArgs(cmd, 2, 0).split(" ")[0]
-            let $data = utility.getArgs(cmd, 2, 1)
-            utility.parseVariables($name, callingFrom)
-
-            utility.writeReturnErr($name, $data, false)
-        } else if ($[0] == "write_add") { // &;cmd[write_add]
-            let $name = utility.getArgs(cmd, 2, 0).split(" ")[0]
-            let $data = utility.getArgs(cmd, 2, 1)
-            utility.parseVariables($name, callingFrom)
-
-            utility.writeReturnErr($name, $data, true)
-        } else if ($[0] == "rm") { // &;cmd[rm]
-            try {
-                fs.unlinkSync(utility.getArgs(cmd, 2, 0));
-            } catch (err) {
-                return console.log(colors.bold(colors.red(`Error: ${err}`)))
-            }
-        } else if ($[0] == "listdir") { // &;cmd[listdir]
-            fs.readdir(utility.getArgs(cmd, 2, 0), (err, files) => {
-                if (err) {
-                    return console.log(colors.bold(colors.red(`Error: ${err}`)))
-                }
-
-                files.forEach(file => {
-                    console.log(file)
-                });
-            });
-        } else if ($[0] == "mk") { // &;cmd[mk]
-            if (cmd.split(" ")[1] == "includedir") {
-                fs.mkdir(path.join(process.cwd(), cmd.split(" ")[2].split("/")[0]), (err) => {
-                    if (err) {
-                        return console.log(colors.bold(colors.red(`[!] Error: ${err}`)))
-                    }
-                });
-            }
-
-            fs.writeFile(utility.parseVariables(cmd.split(" ")[2], callingFrom), "", function (err) {
-                if (err) {
-                    console.log(err)
-                } else {
-                    console.log("Created.")
-                }
-            })
         } else if ($[0] == "exec") { // &;cmd[exec]
             parse(cmd, callingFrom, addToVariables, line)
         }
@@ -292,8 +182,16 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 console.log(imported)
             } else if ($_ == "customcmds") {
                 console.log(file_cmds)
-            } else if ($_ == "cmds") {
-                console.log(utility.cmds)
+            } else if ($_ == "all") {
+                console.log([{
+                    variables: variables,
+                    functions: functions,
+                    within: callingFrom,
+                    parsehold: parseHold,
+                    parsedLines: parsedLines,
+                    dictionary: utility.cmds,
+                    fileDictionary: file_cmds
+                }])
             }
         }
         // ===============

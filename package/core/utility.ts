@@ -62,6 +62,16 @@ export const getArgs = function (cmd: string, limit: number, split: number) {
 
 // helpers
 
+function assignVariableAbsolute(__val) {
+    if (__val.__type === "string") {
+        __val.absoluteValue = __val.val.split('"')[1].split('"')[0]
+    } else {
+        __val.absoluteValue = __val.val
+    }
+
+    return __val
+}
+
 export const makeVariable = function ($name: string, $value: any, $absoluteValue: any, $function, $type: string = "undefined") {
     if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
@@ -75,7 +85,11 @@ export const makeVariable = function ($name: string, $value: any, $absoluteValue
                 }
             )
         } else {
-            getVariable('val:' + $name.split(" = ")[0], $function).val = $value
+            let __val = getVariable('val:' + $name.split(" = ")[0], $function)
+            
+            __val.val = $value
+            __val = assignVariableAbsolute(__val)
+            __val.__type = $type
         }
     } else {
         if (getVariable('$:' + $name.split(" = ")[0], $function) == null) {
@@ -89,7 +103,11 @@ export const makeVariable = function ($name: string, $value: any, $absoluteValue
                 }
             )
         } else {
-            getVariable('$:' + $name.split(" = ")[0], $function).val = $value
+            let __val = getVariable('val:' + $name.split(" = ")[0], $function)
+
+            __val.val = $value
+            __val = assignVariableAbsolute(__val)
+            __val.__type = $type
         }
     }
 }
@@ -186,7 +204,7 @@ export const parseCommands = function ($content: string, $calling: string = "nul
 
     for (let word of words) {
         if ($functions.includes(word) && $checkBrackets(word)) {
-            $content = $content.replace(word, handleCommand(word.split("(")[0], $calling))
+            // $content = $content.replace(word, handleCommand(word.split("(")[0], $calling))
             console.log($content)
         }
     }

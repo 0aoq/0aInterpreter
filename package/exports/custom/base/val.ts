@@ -1,5 +1,5 @@
-import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../core/index.js';
-import { $checkBrackets, $checkQuotes, getArgs, getVariable, makeVariable, parseVariables } from '../../core/utility.js';
+import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../../core/index.js';
+import { $checkBrackets, $checkQuotes, getArgs, getVariable, makeVariable, parseVariables } from '../../../core/utility.js';
 
 createCmdFromFile("val", false, function ($) {
     $.cmd = parseVariables($.cmd, $.callingFrom, $.addToVariables) // allow for the ability to assign variables to other variables

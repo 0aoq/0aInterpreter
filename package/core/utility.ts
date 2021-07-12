@@ -62,13 +62,14 @@ export const getArgs = function (cmd: string, limit: number, split: number) {
 
 // helpers
 
-export const makeVariable = function ($name: string, $value: any, $function, $type: string = "undefined") {
+export const makeVariable = function ($name: string, $value: any, $absoluteValue: any, $function, $type: string = "undefined") {
     if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
             variables.push(
                 {
                     name: 'val:' + $name.split(" = ")[0],
                     val: $value,
+                    absoluteValue: $absoluteValue,
                     function: "null",
                     __type: $type
                 }
@@ -82,6 +83,7 @@ export const makeVariable = function ($name: string, $value: any, $function, $ty
                 {
                     name: '$:' + $name.split(" = ")[0] + "__&func:" + $function,
                     val: $value,
+                    absoluteValue: $absoluteValue,
                     function: $function,
                     __type: $type
                 }
@@ -118,7 +120,7 @@ export const getFunction = function ($name: string) {
 
 // Parsing helper functions
 
-export const parseVariables = function ($content: string, $calling: string = "null", $add: string = "") {
+export const parseVariables = function ($content: string, $calling: string = "null", $add: string = "", $absolute: boolean = false) {
     $content = $content.split("//")[0]
 
     let words = $content.split(" ")
@@ -128,11 +130,21 @@ export const parseVariables = function ($content: string, $calling: string = "nu
         let val = getVariable($, $calling)
 
         if (val != null) {
-            if (val.function == "null") {
-                $content = $content.replace(word, getVariable($, $calling).val)
-            } else {
-                if ($calling = val.function) {
+            if (!$absolute) {
+                if (val.function == "null") {
                     $content = $content.replace(word, getVariable($, $calling).val)
+                } else {
+                    if ($calling = val.function) {
+                        $content = $content.replace(word, getVariable($, $calling).val)
+                    }
+                }
+            } else {
+                if (val.function == "null") {
+                    $content = $content.replace(word, getVariable($, $calling).absoluteValue)
+                } else {
+                    if ($calling = val.function) {
+                        $content = $content.replace(word, getVariable($, $calling).absoluteValue)
+                    }
                 }
             }
         }
@@ -161,8 +173,8 @@ export const parseVariables = function ($content: string, $calling: string = "nu
 
 export let cmds = [ // list of allowed keywords
     'val', 'repeat', 'func', 'run', 'cd', 'clear', 'write', 'write_add', 'rm',
-    'listdir', 'mk', 'exec', 'calc', 'debug', 'set', '//', 'if', 'ifnot', 'rest',
-    '{/end}'
+    'listdir', 'mk', 'exec', 'debug', 'set', '#',
+    'end'
 ]
 
 export let $functions = [

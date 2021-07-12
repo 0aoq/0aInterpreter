@@ -12,7 +12,7 @@ createCmdFromFile("for", false, function ($) {
         let split__less_than = split__do[0].split(" < ")
 
         if (split__less_than[0] != undefined && !isNaN(parseInt(split__less_than[1].split(", ")[0]))) {
-            makeVariable(split__less_than[0], 0, "forloop", "int") // create time waited variable
+            makeVariable(split__less_than[0], 0, 0, "forloop", "int") // create time waited variable
 
             async function __worker (split__less_than, split__do, $) {
                 for (let i = 0; i < parseInt(split__less_than[1].split(", ")[0]) + 1; i++) {

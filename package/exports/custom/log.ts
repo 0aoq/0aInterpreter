@@ -27,9 +27,9 @@ createCmdFromFile("log", false, function ($) {
             if (getVariable(parseFunction(after))) { // specific for variable
                 let variable = getVariable(parseFunction(after))
                 if (variable.__type == "table") {
-                    console.log(JSON.parse(variable.val)) // parse to table
+                    console.log(JSON.parse(variable.absoluteValue)) // parse to table
                 } else {
-                    console.log(variable.val)
+                    console.log(variable.absoluteValue)
                 }
             } else {
                 if (!isNaN(parseInt(parseFunction(after)))) { // number

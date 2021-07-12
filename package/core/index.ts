@@ -53,6 +53,8 @@ export let multi_line_required = ['func']
 
 export const createCmdFromFile = function (name: string, multiline: boolean, run: any) {
     if (name && run) {
+        utility.cmds.push(name)
+
         if (multiline) {
             multi_line_required.push(name)
         }
@@ -123,29 +125,10 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // ===============
         // UTILITY
         // ===============
-        if ($[0] == "val") { // &;cmd[val]
-            let $name = utility.getArgs(cmd, 2, 0)
-            let $value = $name.split(" = ")[1]
-
-            if (isNaN(parseInt($value))) {
-                if (!utility.getVariable($value)) {
-                    if ($value[0] == '"') {
-                        if (utility.$checkQuotes($value)) {
-                            utility.makeVariable($name, $value.split('"')[1].split('"')[0], callingFrom || null, "string")
-                        } else {
-                            handleCommand("SyntaxError string was not closed properly.", callingFrom, addToVariables, line)
-                        }
-                    } else {
-                        utility.makeVariable($name, $value, callingFrom || null)
-                    }
-                }
-            } else if (!isNaN(parseInt($value))) {
-                utility.makeVariable($name, parseInt($value), callingFrom || null, "int")
-            }
             // ===============
             // FUNCTIONS
             // ===============
-        } else if ($[0] == "func") { // &;cmd[func]
+        if ($[0] == "func") { // &;cmd[func]
             // func test{/s}log Hello, World!{/and}log New line
             // run test
 
@@ -184,7 +167,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                                     }
                                 }
 
-                                utility.makeVariable($name, $value, utility.getFunction(returned).name || "null")
+                                utility.makeVariable($name, $value, $value, utility.getFunction(returned).name || "null")
                             }
                         }
 
@@ -281,62 +264,10 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
             })
         } else if ($[0] == "exec") { // &;cmd[exec]
             parse(cmd, callingFrom, addToVariables, line)
-        } else if ($[0] == "if") { // &;cmd[if]
-            let func = utility.parseVariables(utility.getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
-
-            let statement1 = func.split(" == ")[0]
-            let statement2 = func.split(" == ")[1]
-
-            if (statement2 == "null") {
-                statement2 = null
-            }
-
-            if (statement1 == statement2) {
-                handleCommand(utility.getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
-            }
-        } else if ($[0] == "ifnot") { // &;cmd[ifnot]
-            let func = utility.parseVariables(utility.getArgs(cmd, 2, 0), callingFrom).split(" do ")[0]
-
-            let statement1 = func.split(" == ")[0]
-            let statement2 = func.split(" == ")[1]
-
-            if (statement2 == "null") {
-                statement2 = null
-            }
-
-            if (statement1 != statement2) {
-                handleCommand(utility.getArgs(cmd, 2, 0).split(" do ")[1], callingFrom)
-            }
         }
         // ===============
         // MATHEMATICS
         // ===============
-        else if ($[0] == "calc") { // &;cmd[calc]
-            let $_ = utility.getArgs(cmd, 2, 0).split(" with ")[0].split(" ")
-            let $operation = utility.getArgs(cmd, 2, 0).split(" with ")[1]
-
-            if ($operation == "+") {
-                if (parseInt($_[0]) && parseInt($_[1])) {
-                    console.log(parseInt($_[0]) + parseInt($_[1]))
-                }
-            } else if ($operation == "-") {
-                if (parseInt($_[0]) && parseInt($_[1])) {
-                    console.log(parseInt($_[0]) - parseInt($_[1]))
-                }
-            } else if ($operation == "*") {
-                if (parseInt($_[0]) && parseInt($_[1])) {
-                    console.log(parseInt($_[0]) * parseInt($_[1]))
-                }
-            } else if ($operation == "/") {
-                if (parseInt($_[0]) && parseInt($_[1])) {
-                    console.log(parseInt($_[0]) / parseInt($_[1]))
-                }
-            } else if ($operation == "^") {
-                if (parseInt($_[0]) && parseInt($_[1])) {
-                    Math.pow(parseInt($_[0]), parseInt($_[1]))
-                }
-            }
-        }
         // ===============
         // DEBUG CMDS
         // ===============
@@ -359,6 +290,8 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 console.log(imported)
             } else if ($_ == "customcmds") {
                 console.log(file_cmds)
+            } else if ($_ == "cmds") {
+                console.log(utility.cmds)
             }
         }
         // ===============
@@ -370,15 +303,6 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 await utility.sleep(parseInt(split))
             } else {
                 handleCommand("SyntaxError Brackets were not opened and closed properly.", callingFrom, addToVariables, line)
-            }
-        } else if ($[0] == "open") { // &;cmd[open]
-            let url = utility.getArgs(cmd, 2, 0)
-
-            if (url) {
-                var start = (process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open');
-                require('child_process').exec(start + ' ' + url);
-            } else {
-                handleCommand("SyntaxError Url not specified.", callingFrom, addToVariables, line)
             }
         } else if ($[0] == "import") {
             let service = utility.parseString(utility.getArgs(cmd, 2, 0))
@@ -416,9 +340,10 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // ===============
         // FILE CMDS
         // ===============
-        for (let space of cmd.split(" ")) {
+        let __spaces = cmd.split(" ")
+        for (let space of __spaces) {
             let __cmd = getFromCustomCmds(space)
-            if (__cmd) {
+            if (__cmd && __spaces.indexOf(__cmd.name) <= 3) { // limit position that cmd can be called from to be 3 or under
                 const custom_cmd = __cmd
                 custom_cmd.run({
                     cmd: cmd,

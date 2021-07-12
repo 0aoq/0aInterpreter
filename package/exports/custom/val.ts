@@ -11,7 +11,7 @@ createCmdFromFile("val", false, function ($) {
         if (!getVariable($value)) {
             if ($value[0] == '"') {
                 if ($checkQuotes($value)) {
-                    makeVariable($name, $value.split('"')[1].split('"')[0], $.callingFrom || null, "string")
+                    makeVariable($name, $value, $value.split('"')[1].split('"')[0], $.callingFrom || null, "string")
                 } else {
                     handleCommand("SyntaxError string was not closed properly.", $.callingFrom, $.addToVariables, $.line)
                 }
@@ -22,10 +22,10 @@ createCmdFromFile("val", false, function ($) {
                     handleCommand("SyntaxError brackets not opened and closed properly.", $.callingFrom, $.addToVariables, $.line)
                 }
             } else {
-                makeVariable($name, $value, $.callingFrom || null)
+                makeVariable($name, $value, $value, $.callingFrom || null)
             }
         }
     } else if (!isNaN(parseInt($value))) {
-        makeVariable($name, parseInt($value), $.callingFrom || null, "int")
+        makeVariable($name, parseInt($value), parseInt($value), $.callingFrom || null, "int")
     }
 })

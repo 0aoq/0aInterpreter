@@ -6,3 +6,11 @@ docs/
 
 # Workflows
 .github/
+
+# Uncompiled
+package/core/*.ts
+package/exports/*.ts
+package/exports/custom/*ts
+package/exports/custom/base/*.ts
+
+tsconfig.json

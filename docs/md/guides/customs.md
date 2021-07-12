@@ -1,6 +1,8 @@
 # Custom Commands
 
-Hello! Any javascript files within this /custom/ folder will be required and run so for support for custom commands. Below is a description on how to create custom commands.
+Hello! Any javascript files within the `package/exports/custom/` folder will be required and run for support for custom commands. Below is a description on how to create custom commands.
+
+Custom commands are loaded specifically from the `package/exports/custom/` folder, and any sub-directories of the folder will not be searched for custom files.
 
 ```ts
 // import from index.ts
@@ -20,3 +22,4 @@ createCmdFromFile("example", false, function ($)) {
     const after = getLineAfterCmd($.cmd, "example") // line: full line, cmd: the name of the run command
     console.log(after) // log everything after "example"; "example 'Hello, world!'" returns "Hello, world!"
 }
+```

@@ -35,6 +35,7 @@
 
 ## Guides
 
+- [Custom Functions/Commands](https://0aoq.github.io/0aInterpreter/?md/guides/customs.md)
 - [Learn functions](https://0aoq.github.io/0aInterpreter/?md/guides/learnfunc.md)
 - [Understanding variables](https://0aoq.github.io/0aInterpreter/?md/guides/variables.md)
 

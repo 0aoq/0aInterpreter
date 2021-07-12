@@ -5,11 +5,9 @@
     "main": "index.js",
     "dependencies": {
         "@types/node": "^16.0.0",
-        "clui": "^0.3.6",
         "colors": "^1.4.0",
         "inquirer": "^8.1.1",
-        "typescript": "^4.3.5",
-        "zero-md": "^2.2.0"
+        "typescript": "^4.3.5"
     },
     "devDependencies": {},
     "scripts": {

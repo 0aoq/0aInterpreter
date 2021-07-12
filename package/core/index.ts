@@ -8,7 +8,6 @@ import * as http from 'http'
 const colors = require("colors") // node module doesn't work well with import, ???
 
 import * as inquirer from 'inquirer'
-import * as clui from 'clui'
 
 import * as utility from './utility.js'
 import { parse } from '../exports/parse.js'

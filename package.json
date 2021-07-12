@@ -2,7 +2,7 @@
     "name": "0ainterpreter",
     "version": "0.7.0",
     "description": "Basic node.js command line interpreter for a custom language.",
-    "main": "index.js",
+    "main": "package/core/index.js",
     "dependencies": {
         "@types/node": "^16.3.1",
         "colors": "^1.4.0",
@@ -11,7 +11,8 @@
     },
     "devDependencies": {},
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "launch.bat"
     },
     "repository": {
         "type": "git",

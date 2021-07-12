@@ -128,27 +128,9 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
     if ($) {
         if ($[0] == "#") { return }
 
-        // ===============
-        // UTILITY
-        // ===============
-        // ===============
-        // FUNCTIONS
-        // ===============
-        // =================
-        // VARIABLES ALLOWED
-        // =================
-
-        /* $ = cmd.split(" ") // REPLACE BY utility.ts FUNCTION parseVariablesFromWords
-        for (const $_ of $) { // parse all variables from every word
-            $[$_] = $_.replace($_, parseVariables($_, callingFrom, addToVariables))
-        } */
-
         if ($[0] == "SyntaxError") { // &;cmd[SyntaxErorr]
             console.log(colors.bold(colors.red(`[!] (${line || 1}) SyntaxError: ${utility.getArgs(cmd, 2, 0)}`)))
         }
-        // ===============
-        // FILE SYSTEM
-        // ===============
         else if ($[0] == "cd") { // &;cmd[cd]
             handleCommand('log (val:$cd)', callingFrom, addToVariables, line)
         } else if ($[0] == "clear") { // &;cmd[clear]
@@ -156,12 +138,6 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         } else if ($[0] == "exec") { // &;cmd[exec]
             parse(cmd, callingFrom, addToVariables, line)
         }
-        // ===============
-        // MATHEMATICS
-        // ===============
-        // ===============
-        // DEBUG CMDS
-        // ===============
         else if ($[0] == "debug") { // &;cmd[debug]
             let $_ = utility.getArgs(cmd, 2, 0)
 
@@ -183,13 +159,13 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 console.log(file_cmds)
             } else if ($_ == "all") {
                 console.log([{
-                    variables: variables,
-                    functions: functions,
+                    variables: JSON.stringify(variables),
+                    functions: JSON.stringify(functions),
                     within: callingFrom,
-                    parsehold: parseHold,
+                    parsehold: JSON.stringify(parseHold),
                     parsedLines: parsedLines,
                     dictionary: utility.cmds,
-                    fileDictionary: file_cmds
+                    fileDictionary: JSON.stringify(file_cmds)
                 }])
             }
         }
@@ -258,7 +234,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
 // question prompt
 
 console.log('')
-console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.7.0')
+console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.7.2')
 console.log('')
 
 const promptcmd = function () {
@@ -332,8 +308,7 @@ inquirer.prompt([{
 
 // defaults
 
-process.title = "0a Basic Command Line" // IF LAUNCHING FROM A COMMAND LINE, SET THE TITLE
-handleCommand('val $cd = "' + process.cwd() + '"') // SET val:$cd TO BE THE WORKING DIRECTORY
+process.title = "0a Interpreter" // IF LAUNCHING FROM A COMMAND LINE, SET THE TITLE
 
 export default {
     handleCommand,

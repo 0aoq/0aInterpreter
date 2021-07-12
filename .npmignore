@@ -1,0 +1,11 @@
+# Tests
+scripts/
+
+# Documentation
+docs/
+
+# Launch program (For tests)
+launch.bat
+
+# Workflows
+.github/

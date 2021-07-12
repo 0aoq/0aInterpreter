@@ -113,9 +113,11 @@ export const getLineAfterCmd = function (cmd: string, splitBy: string) {
 
 export const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
     // all new required commands should be created in a custom command file.
-    
-    cmd = cmd.replace("    ", "") // remove \t spaces
-    cmd = cmd.replace("\t", "") // remove \t spaces
+
+    for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000, Error: cmd.replaceAll is not a function.
+        cmd = cmd.replace("    ", "") // remove \t spaces
+        cmd = cmd.replace("\t", "") // remove \t spaces
+    }
 
     let $ = cmd.split(" ")
 
@@ -125,9 +127,9 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         // ===============
         // UTILITY
         // ===============
-            // ===============
-            // FUNCTIONS
-            // ===============
+        // ===============
+        // FUNCTIONS
+        // ===============
         if ($[0] == "func") { // &;cmd[func]
             // func test{/s}log Hello, World!{/and}log New line
             // run test
@@ -450,7 +452,7 @@ export default {
     getLineAfterCmd
 }
 
-process.on('uncaughtException', (error)  => {
+process.on('uncaughtException', (error) => {
     console.log('0aInterpreter has encountered an error: ' + colors.bold(colors.red(error.toString())))
     process.exit(1)
 })

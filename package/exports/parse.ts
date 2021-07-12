@@ -50,7 +50,7 @@ export function parse(cmd: string, callingFrom: string, addToVariables: string, 
 
                     // better multiline support for parser: still needs to be worked on!
                     if (line.trim().length !== 0) {
-                        for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000, es5 doesn't support replaceAll
+                        for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000, Error: line.replaceAll is not a function.
                             if (!__self.sandboxed) {
                                 line = line.replace("    ", "") // remove \t spaces
                                 line = line.replace("\t", "") // remove \t spaces

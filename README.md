@@ -1,5 +1,10 @@
 # 0a Interpreter
 
+Note that 0aInterpreter is meant to be used as a CLI, if using from npm use `buildLaunch()` to create a batch file to launch 0aInterpreter.
+If launched from npm use the `run()` function to run a command from your file, configuration files, file loading, and custom commands are disabled if running from npm.
+
+If downloading from github, make sure you use the typescript compiler to compile the typescript files into javascript files. 0aInterpreter can be run from `package/core/index.js` after being compiled.
+
 ## About
 
 I tried to create a basic programming language interpreter for a simple language with little features and simple syntax.

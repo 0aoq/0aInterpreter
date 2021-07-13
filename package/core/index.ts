@@ -163,7 +163,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                     functions: JSON.stringify(functions),
                     within: callingFrom,
                     parsehold: JSON.stringify(parseHold),
-                    parsedLines: parsedLines,
+                    parsedLines: JSON.stringify(parsedLines),
                     dictionary: utility.cmds,
                     fileDictionary: JSON.stringify(file_cmds)
                 }])

@@ -53,5 +53,7 @@
 
 - [introduction](https://0aoq.github.io/0aInterpreter/?md/config/introduction.md)
 - [specifyVal](https://0aoq.github.io/0aInterpreter/?md/config/specifyVal.md)
+- [allowFileLoading](https://0aoq.github.io/0aInterpreter/?md/config/allowFileLoading.md)
+- [allowMultiLine](https://0aoq.github.io/0aInterpreter/?md/config/speallowMultiLinecifyVal.md)
 
 <br><br>

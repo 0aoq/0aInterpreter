@@ -11,11 +11,14 @@ Please note that I made this just for fun, and used it to learn more typescript 
 - Simple syntax
 - Easy to use custom function system
     - For more information on custom functions/commands, view the [introduction guide](https://0aoq.github.io/0aInterpreter/?md/guides/customs.md).
+- Simple to understand configuration system for configuring permissions
+    - More information on the [introduction guide](https://0aoq.github.io/0aInterpreter/?md/config/introduction.md).
 
 ## Links
 
 - Sourced at: https://github.com/0aoq/0aInterpreter
 - Documentation at: https://0aoq.github.io/0aInterpreter ([0aInterpreter/docs](https://github.com/0aoq/0aInterpreter/tree/main/docs))
+- Downloadable from [npm](https://www.npmjs.com/package/0ainterpreter) (CLI)
 
 ## License
 

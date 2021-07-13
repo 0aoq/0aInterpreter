@@ -11,6 +11,7 @@ import * as inquirer from 'inquirer'
 
 import * as utility from './utility.js'
 import { parse } from '../exports/parse.js'
+import { configparse } from '../exports/configparse.js'
 
 http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -26,12 +27,16 @@ http.createServer(function (req, res) {
 
 export let variables = []
 export let functions = []
-let indexed = []
 
 // main
 
 export let parsedLines = []
 export let parseHold = []
+
+export let config = [{
+    "allowMultiLine": true,
+    "allowFileLoading": true
+}]
 
 export let imported = [{
     html: false,
@@ -70,7 +75,7 @@ function searchDirForCmds(dir) {
         if (err) {
             console.log(err)
         }
-    
+
         files.forEach(file => {
             if (file.split(".")[1] == "js") { // file extension
                 setTimeout(() => {
@@ -157,6 +162,8 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 console.log(imported)
             } else if ($_ == "customcmds") {
                 console.log(file_cmds)
+            } else if ($_ == "permissions") {
+                console.log(config[0])
             } else if ($_ == "all") {
                 console.log([{
                     variables: JSON.stringify(variables),
@@ -165,7 +172,8 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                     parsehold: JSON.stringify(parseHold),
                     parsedLines: JSON.stringify(parsedLines),
                     dictionary: utility.cmds,
-                    fileDictionary: JSON.stringify(file_cmds)
+                    fileDictionary: JSON.stringify(file_cmds),
+                    permissions: JSON.stringify(config[0])
                 }])
             }
         }
@@ -231,6 +239,9 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
     }
 }
 
+// .0aconfig
+configparse()
+
 // question prompt
 
 console.log('')
@@ -265,40 +276,44 @@ inquirer.prompt([{
             name: 'filelocation',
             message: 'Where would you like to load files from? (cd/scripts)',
         }]).then(($answers) => {
-            if ($answers.filelocation == "") {
-                const __path = path.resolve(process.cwd(), "scripts")
+            if (config[0].allowFileLoading == true) {
+                if ($answers.filelocation == "") {
+                    const __path = path.resolve(process.cwd(), "scripts")
 
-                // LOAD .0a FILES FROM WORKING DIRECTORY/scripts
+                    // LOAD .0a FILES FROM WORKING DIRECTORY/scripts
 
-                fs.readdir(__path, (err, files) => {
-                    if (err) {
-                        return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
-                    } else {
-                        files.forEach(file => {
-                            setTimeout(() => {
-                                handleCommand("exec " + path.resolve(__path, file))
-                            }, 100);
-                        });
+                    fs.readdir(__path, (err, files) => {
+                        if (err) {
+                            return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
+                        } else {
+                            files.forEach(file => {
+                                setTimeout(() => {
+                                    handleCommand("exec " + path.resolve(__path, file))
+                                }, 100);
+                            });
 
-                        promptcmd()
-                    }
-                });
+                            promptcmd()
+                        }
+                    });
+                } else {
+                    // LOAD .0a FILES FROM DIRECT LOCATION
+
+                    fs.readdir($answers.filelocation, (err, files) => {
+                        if (err) {
+                            return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
+                        } else {
+                            files.forEach(file => {
+                                setTimeout(() => {
+                                    handleCommand("exec " + $answers.filelocation + "/" + file)
+                                }, 100);
+                            });
+
+                            promptcmd()
+                        }
+                    });
+                }
             } else {
-                // LOAD .0a FILES FROM DIRECT LOCATION
-
-                fs.readdir($answers.filelocation, (err, files) => {
-                    if (err) {
-                        return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
-                    } else {
-                        files.forEach(file => {
-                            setTimeout(() => {
-                                handleCommand("exec " + $answers.filelocation + "/" + file)
-                            }, 100);
-                        });
-
-                        promptcmd()
-                    }
-                });
+                promptcmd()
             }
         });
     } else {

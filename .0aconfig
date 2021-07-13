@@ -1,0 +1,7 @@
+# Basic 0a config file
+# Testing version
+
+<config>
+    <allowMultiLine>true</allowMultiLine>
+    <allowFileLoading>true</allowFileLoading>
+</config>

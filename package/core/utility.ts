@@ -254,6 +254,8 @@ export const getBoolean = function ($string: string) {
         return true
     } else if ($string == "false") {
         return false
+    } else {
+        return null
     }
 }
 

@@ -1,11 +1,13 @@
-import { handleCommand, parseHold, parsedLines, getFromHold, multi_line_required, findCmd, getLineAfterCmd } from "../core/index.js"
-import { getArgs, getBoolean, cmds } from '../core/utility.js'
+import { handleCommand, parseHold, parsedLines, getFromHold, multi_line_required, findCmd, getLineAfterCmd, config } from "../core/index.js"
+import { getArgs, getBoolean } from '../core/utility.js'
+
 
 const colors = require('colors')
 import * as fs from 'fs'
-import * as path from 'path'
 
 export function parse(cmd: string, callingFrom: string, addToVariables: string, line: number) {
+    if (!config[0].allowFileLoading) { return }
+    
     let returned = getLineAfterCmd(cmd, "exec")
 
     if (returned.split(".")[1] === "0a") {

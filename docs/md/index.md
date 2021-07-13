@@ -49,4 +49,8 @@
 - [getLineAfterCmd](https://0aoq.github.io/0aInterpreter/?md/api/customs/getLineAfterCmd.md)
 - [parseVariablesFromWords](https://0aoq.github.io/0aInterpreter/?md/api/customs/parseVariablesFromWords.md)
 
+# Configuration Files
+
+- [introduction](https://0aoq.github.io/0aInterpreter/?md/config/introduction.md)
+
 <br><br>

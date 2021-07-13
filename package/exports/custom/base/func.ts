@@ -45,8 +45,6 @@ createCmdFromFile("run", false, function ($) {
 
                 let uniqueId = "__&func:" + utility.getFunction(returned).name
                 for (let command of utility.getFunction(returned).run) {
-                    command = command.replace("    ", "") // remove \t spaces
-                    command = command.replace("\t", "") // remove \t spaces
                     handleCommand(utility.parseVariables(command, utility.getFunction(returned).name, uniqueId), utility.getFunction(returned).name, uniqueId)
                 }
             }

@@ -73,7 +73,13 @@ function assignVariableAbsolute(__val) {
     return __val
 }
 
-export const makeVariable = function ($name: string, $value: any, $absoluteValue: any, $function, $type: string = "undefined") {
+export const makeVariable = function (
+    $name: string, $value: any,
+    $absoluteValue: any,
+    $function,
+    $type: string = "undefined",
+    $mods: [] = []
+) {
     if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
             if (!config[0].specifyVal) { // <specifyVal>    </specifyVal>
@@ -83,6 +89,7 @@ export const makeVariable = function ($name: string, $value: any, $absoluteValue
                         val: $value,
                         absoluteValue: $absoluteValue,
                         function: "null",
+                        modifiers: $mods,
                         __type: $type
                     }
                 )
@@ -93,6 +100,7 @@ export const makeVariable = function ($name: string, $value: any, $absoluteValue
                         val: $value,
                         absoluteValue: $absoluteValue,
                         function: "null",
+                        modifiers: $mods,
                         __type: $type
                     }
                 )
@@ -100,9 +108,13 @@ export const makeVariable = function ($name: string, $value: any, $absoluteValue
         } else {
             let __val = getVariable('val:' + $name.split(" = ")[0], $function)
 
-            __val.val = $value
-            __val = assignVariableAbsolute(__val)
-            __val.__type = $type
+            if (!__val.modifiers.includes('static')) {
+                __val.val = $value
+                __val = assignVariableAbsolute(__val)
+                __val.__type = $type
+            } else if (__val.modifiers.includes('static')) {
+                handleCommand(`SyntaxError Attempted to reassign a static variable.`, $function)
+            }
         }
     } else {
         if (getVariable('$:' + $name.split(" = ")[0], $function) == null) {
@@ -112,6 +124,7 @@ export const makeVariable = function ($name: string, $value: any, $absoluteValue
                     val: $value,
                     absoluteValue: $absoluteValue,
                     function: $function,
+                    modifiers: $mods,
                     __type: $type
                 }
             )
@@ -212,6 +225,10 @@ export let $functions = [
     'log', 'run'
 ]
 
+export let modifiers = [
+    'static'
+]
+
 export const parseCommands = function ($content: string, $calling: string = "null") {
     let words = $content.split(" ")
 
@@ -299,11 +316,11 @@ export const math = function (cmd) {
             let num2 = parseInt(spaces[index + 2])
 
             let supportedOperators = [
-                Token.PLUS, 
-                Token.MINUS, 
-                Token.AST, 
-                Token.CARET, 
-                Token.RSLASH, 
+                Token.PLUS,
+                Token.MINUS,
+                Token.AST,
+                Token.CARET,
+                Token.RSLASH,
                 '_/'
             ]
 
@@ -333,7 +350,7 @@ export const math = function (cmd) {
 }
 
 export const replaceValue = function (cmd: string, toReplace: string, value: string) {
-    cmd = cmd.replaceAll(toReplace, value) 
+    cmd = cmd.replaceAll(toReplace, value)
     return cmd
 }
 
@@ -356,9 +373,9 @@ export const getStringType = function ($value: string) { // WIP
 }
 
 export const removeFromArray = function (array, indexOf) {
-    for( var i = 0; i < array.length; i++){ 
-        if (i === indexOf) { 
-            array.splice(i, 1); 
+    for (var i = 0; i < array.length; i++) {
+        if (i === indexOf) {
+            array.splice(i, 1);
         }
     }
 
@@ -395,5 +412,6 @@ export default { // every default function
     splitFlags,
     math,
     replaceValue,
-    removeFromArray
+    removeFromArray,
+    modifiers
 };

@@ -122,6 +122,10 @@ export const getLineAfterCmd = function (cmd: string, splitBy: string) {
     return cmd.split(splitBy)[1].slice(1)
 }
 
+export const getLineBeforeCmd = function (cmd: string, splitBy: string) {
+    return cmd.split(splitBy)[0]
+}
+
 // run
 
 export const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number, afterInput?) {
@@ -242,7 +246,10 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                     cmd: cmd,
                     callingFrom: callingFrom,
                     addToVariables: addToVariables,
-                    line: line
+                    line: line,
+                    
+                    before: getLineBeforeCmd(cmd, custom_cmd.name),
+                    after: getLineAfterCmd(cmd, custom_cmd.name)
                 })
 
                 const expression: Node = { // command status operation
@@ -375,7 +382,8 @@ export default {
     findCmd,
     getLineAfterCmd,
     npm,
-    setnpm
+    setnpm,
+    getLineBeforeCmd
 }
 
 process.on('uncaughtException', (error) => {

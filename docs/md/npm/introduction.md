@@ -2,7 +2,7 @@
 
 To download 0aInterpreter from npm use
 ```
-npm i 0ainterpreter
+npm i 0ainterpreter --production
 ```
 
 If downloading from npm, it is recommended that you run `buildLaunch()` and then use the generated batch file to run 0aInterpreter.
@@ -17,3 +17,5 @@ The generated batch file will look somewhat like the following:
 node PATH_TO_INDEX_.JS
 pause
 ```
+
+Downloading off npm will only download the compiled version, and downloading from git/github will only download the uncompiled version.

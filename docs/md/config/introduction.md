@@ -4,6 +4,7 @@ The interpreter can be configured through a `.0aconfig` file. The currently supp
 
 - allowMultiLine: **(boolean)**
 - allowFileLoading: **(boolean)**
+- specifyVal: **(boolean)**
 
 Configuration files must start out by declaring the begin on the file with `<config>` and ended with `</config>`
 
@@ -11,6 +12,7 @@ Configuration files must start out by declaring the begin on the file with `<con
 <config>
     <allowMultiLine>true</allowMultiLine>
     <allowFileLoading>true</allowFileLoading>
+    <specifiyVal>true</specifyVal>
 </config>
 ```
 

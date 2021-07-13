@@ -51,6 +51,8 @@ export function configparse () { // config file parsing
                                 config[0].allowMultiLine = boolean
                             } else if (__tag_split[1][1] == "/allowFileLoading") {
                                 config[0].allowFileLoading = boolean
+                            } else if (__tag_split[1][1] == "/specifyVal") {
+                                config[0].specifyVal = boolean
                             }
                         }
                     }

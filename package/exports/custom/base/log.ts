@@ -1,5 +1,5 @@
 import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../../core/index.js';
-import { $checkBrackets, $checkQuotes, getArgs, getVariable, parseFunction, parseString, parseVariablesFromWords } from '../../../core/utility.js';
+import { $checkBrackets, $checkQuotes, cmds, getArgs, getVariable, parseFunction, parseString, parseVariablesFromWords } from '../../../core/utility.js';
 
 createCmdFromFile("log", false, function ($) {
     $.cmd = parseVariablesFromWords($.cmd, $.callingFrom, $.addToVariables)
@@ -23,7 +23,7 @@ createCmdFromFile("log", false, function ($) {
             } else {
                 handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
             }
-        } else if (getVariable(parseFunction(after)) || !isNaN(parseInt(parseFunction(after)))) { // is a variable/int
+        } else if (getVariable(parseFunction(after)) || !isNaN(parseInt(parseFunction(after))) || cmds.includes(parseFunction(after).split(" ")[0])) { // is a variable/int
             if ($checkBrackets(after)) {
                 if (getVariable(parseFunction(after))) { // specific for variable
                     let variable = getVariable(parseFunction(after))
@@ -32,6 +32,8 @@ createCmdFromFile("log", false, function ($) {
                     } else {
                         console.log(variable.absoluteValue)
                     }
+                } else if (cmds.includes(parseFunction(after).split(" ")[0])) {
+                    handleCommand(parseFunction(after), "log", $.addToVariables, $.line)
                 } else {
                     if (!isNaN(parseInt(parseFunction(after)))) { // number
                         console.log(parseInt(parseFunction(after)))

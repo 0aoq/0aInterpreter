@@ -4,4 +4,5 @@
 <config>
     <allowMultiLine>true</allowMultiLine>
     <allowFileLoading>true</allowFileLoading>
+    <specifyVal>true</specifyVal>
 </config>

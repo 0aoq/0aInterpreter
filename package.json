@@ -1,6 +1,6 @@
 {
     "name": "0ainterpreter",
-    "version": "0.7.9",
+    "version": "0.8.1",
     "description": "Basic node.js command line interpreter for a custom language.",
     "main": "package/core/npm.js",
     "dependencies": {

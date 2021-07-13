@@ -25,6 +25,8 @@ http.createServer(function (req, res) {
     res.end();
 }).listen(8080);
 
+export let npm = false
+
 export let variables = []
 export let functions = []
 
@@ -35,7 +37,8 @@ export let parseHold = []
 
 export let config = [{
     "allowMultiLine": true,
-    "allowFileLoading": true
+    "allowFileLoading": true,
+    "specifyVal": true
 }]
 
 export let imported = [{
@@ -207,16 +210,24 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
             }
         } else if (!cmd.split(" ") || !utility.cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
             if (cmd.split(" ")[1]) {
+                // IF A SECOND WORD EXISTS
                 if (utility.parseFunction(cmd) && isNaN(parseInt(utility.parseFunction(cmd).split(" ")[0]))) {
+                    // IF NO NUMBERS FOR MATHEMATICS
                     handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
                 } else {
                     if (utility.$checkBrackets(cmd) && utility.parseFunction(cmd)) {
+                        // RUN MATHEMATICS; EXAMPLE: (1 + 2)
                         utility.math(utility.parseFunction(cmd))
+                    } else if (utility.getFunction(cmd.split(" ")[0]) && cmd.split(" ")[1][0] == "(" && utility.$checkBrackets(getLineAfterCmd(cmd, cmd.split(" ")[0]))) {
+                        // RUN FUNCTIONS WITHOUT TYPING "run" COMMAND
+                        handleCommand(`run ${cmd.split(" ")[0]} (${utility.parseFunction(getLineAfterCmd(cmd, cmd.split(" ")[0]))})`)
                     } else {
+                        // COMMAND DOESN'T EXIST
                         handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
                     }
                 }
             } else {
+                // THROW ERROR IF NO SECOND WORD
                 handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
             }
         }
@@ -244,8 +255,10 @@ configparse()
 
 // question prompt
 
+export const setnpm = function (boolean: boolean) { npm = boolean } // set npm value
+
 console.log('')
-console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.7.5')
+console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.8.1')
 console.log('')
 
 const promptcmd = function () {
@@ -261,65 +274,67 @@ const promptcmd = function () {
     })
 }
 
-inquirer.prompt([{
-    type: 'rawlist',
-    name: 'action',
-    message: 'What do you want to do?',
-    choices: [
-        'Load from files',
-        'Enter command'
-    ],
-}]).then((answers) => {
-    if (answers.action == "Load from files") {
-        inquirer.prompt([{
-            type: 'input',
-            name: 'filelocation',
-            message: 'Where would you like to load files from? (cd/scripts)',
-        }]).then(($answers) => {
-            if (config[0].allowFileLoading == true) {
-                if ($answers.filelocation == "") {
-                    const __path = path.resolve(process.cwd(), "scripts")
+if (!npm) {
+    inquirer.prompt([{
+        type: 'rawlist',
+        name: 'action',
+        message: 'What do you want to do?',
+        choices: [
+            'Load from files',
+            'Enter command'
+        ],
+    }]).then((answers) => {
+        if (answers.action == "Load from files") {
+            inquirer.prompt([{
+                type: 'input',
+                name: 'filelocation',
+                message: 'Where would you like to load files from? (cd/scripts)',
+            }]).then(($answers) => {
+                if (config[0].allowFileLoading == true) {
+                    if ($answers.filelocation == "") {
+                        const __path = path.resolve(process.cwd(), "scripts")
 
-                    // LOAD .0a FILES FROM WORKING DIRECTORY/scripts
+                        // LOAD .0a FILES FROM WORKING DIRECTORY/scripts
 
-                    fs.readdir(__path, (err, files) => {
-                        if (err) {
-                            return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
-                        } else {
-                            files.forEach(file => {
-                                setTimeout(() => {
-                                    handleCommand("exec " + path.resolve(__path, file))
-                                }, 100);
-                            });
+                        fs.readdir(__path, (err, files) => {
+                            if (err) {
+                                return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
+                            } else {
+                                files.forEach(file => {
+                                    setTimeout(() => {
+                                        handleCommand("exec " + path.resolve(__path, file))
+                                    }, 100);
+                                });
 
-                            promptcmd()
-                        }
-                    });
+                                promptcmd()
+                            }
+                        });
+                    } else {
+                        // LOAD .0a FILES FROM DIRECT LOCATION
+
+                        fs.readdir($answers.filelocation, (err, files) => {
+                            if (err) {
+                                return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
+                            } else {
+                                files.forEach(file => {
+                                    setTimeout(() => {
+                                        handleCommand("exec " + $answers.filelocation + "/" + file)
+                                    }, 100);
+                                });
+
+                                promptcmd()
+                            }
+                        });
+                    }
                 } else {
-                    // LOAD .0a FILES FROM DIRECT LOCATION
-
-                    fs.readdir($answers.filelocation, (err, files) => {
-                        if (err) {
-                            return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
-                        } else {
-                            files.forEach(file => {
-                                setTimeout(() => {
-                                    handleCommand("exec " + $answers.filelocation + "/" + file)
-                                }, 100);
-                            });
-
-                            promptcmd()
-                        }
-                    });
+                    promptcmd()
                 }
-            } else {
-                promptcmd()
-            }
-        });
-    } else {
-        promptcmd()
-    }
-})
+            });
+        } else {
+            promptcmd()
+        }
+    })
+}
 
 // defaults
 
@@ -336,7 +351,9 @@ export default {
     imported,
     multi_line_required,
     findCmd,
-    getLineAfterCmd
+    getLineAfterCmd,
+    npm,
+    setnpm
 }
 
 process.on('uncaughtException', (error) => {

@@ -1,4 +1,4 @@
-import { handleCommand, variables, functions, parseHold, parsedLines } from "./index.js"
+import { handleCommand, variables, functions, parseHold, parsedLines, config } from "./index.js"
 
 const fs = require("fs")
 const colors = require("colors")
@@ -75,18 +75,30 @@ function assignVariableAbsolute(__val) {
 export const makeVariable = function ($name: string, $value: any, $absoluteValue: any, $function, $type: string = "undefined") {
     if ($function == "null") {
         if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
-            variables.push(
-                {
-                    name: 'val:' + $name.split(" = ")[0],
-                    val: $value,
-                    absoluteValue: $absoluteValue,
-                    function: "null",
-                    __type: $type
-                }
-            )
+            if (!config[0].specifyVal) { // <specifyVal>    </specifyVal>
+                variables.push(
+                    {
+                        name: $name.split(" = ")[0],
+                        val: $value,
+                        absoluteValue: $absoluteValue,
+                        function: "null",
+                        __type: $type
+                    }
+                )
+            } else {
+                variables.push(
+                    {
+                        name: 'val:' + $name.split(" = ")[0],
+                        val: $value,
+                        absoluteValue: $absoluteValue,
+                        function: "null",
+                        __type: $type
+                    }
+                )
+            }
         } else {
             let __val = getVariable('val:' + $name.split(" = ")[0], $function)
-            
+
             __val.val = $value
             __val = assignVariableAbsolute(__val)
             __val.__type = $type
@@ -312,6 +324,8 @@ export const math = function (cmd) {
     }
 }
 
+export const replaceValue = function (cmd: string, toReplace: string, value: string) { return cmd.replaceAll(toReplace, value) }
+
 // exports
 
 export default { // every default function
@@ -339,5 +353,6 @@ export default { // every default function
     writeReturnErr,
     makeVariable,
     splitFlags,
-    math
+    math,
+    replaceValue
 };

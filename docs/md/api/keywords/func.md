@@ -28,5 +28,10 @@ end test
 run test (param = "123")
 ```
 
-Used in: [if](https://0aoq.github.io/0aInterpreter/?md/api/functions/if.md), [repeat](https://0aoq.github.io/0aInterpreter/?md/api/functions/repeat.md)<br>
-Run by: [run](https://0aoq.github.io/0aInterpreter/?md/api/keywords/run.md)
+Functions can also be run without using `run`
+
+```lua
+test (param = "123)
+```
+
+Note: Function parameter variables are not affected by configuration [specifyVal](https://0aoq.github.io/0aInterpreter/?md/config/specifyVal.md).

@@ -1,10 +1,10 @@
-import { handleCommand } from "./index.js";
+import { handleCommand, setnpm } from "./index.js";
 
 const colors = require('colors')
 const fs = require('fs')
-const path = require('fs')
 
-export let CLIWarning = false
+export let CLIWarning = true // if the user will be warned about using from .js file instead of cli
+setnpm(true) // disable starting prompt
 
 setTimeout(() => {
     if (!CLIWarning) { return false }

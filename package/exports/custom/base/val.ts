@@ -1,5 +1,5 @@
-import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../../core/index.js';
-import { $checkBrackets, $checkQuotes, getArgs, getVariable, makeVariable, parseVariables } from '../../../core/utility.js';
+import { createCmdFromFile, findCmd, getLineAfterCmd, handleCommand } from '../../../core/index.js';
+import { $checkBrackets, $checkQuotes, cmds, getVariable, makeVariable, parseVariables } from '../../../core/utility.js';
 
 createCmdFromFile("val", false, function ($) {
     $.cmd = parseVariables($.cmd, $.callingFrom, $.addToVariables) // allow for the ability to assign variables to other variables
@@ -21,8 +21,16 @@ createCmdFromFile("val", false, function ($) {
                 } else {
                     handleCommand("SyntaxError brackets not opened and closed properly.", $.callingFrom, $.addToVariables, $.line)
                 }
+            } else if (findCmd($value)) {
+                let __cmd = findCmd($value)
+                let __after = getLineAfterCmd($value, __cmd)
+
+                handleCommand(`${__cmd} ${__after}`, $.callingFrom, $.addToVariables, $.line, function (input) {
+                    makeVariable($name, input, input, $.callingFrom || null, "0a__function_return_value--NODE_TYPE:ReturnStatement")
+                })
             } else {
-                makeVariable($name, $value, $value, $.callingFrom || null)
+                // makeVariable($name, $value, $value, $.callingFrom || null)
+                handleCommand(`SyntaxError Variable type not specified.`, $.callingFrom, $.addToVariables, $.line)
             }
         }
     } else if (!isNaN(parseInt($value))) {

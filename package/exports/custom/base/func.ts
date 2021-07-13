@@ -21,7 +21,7 @@ createCmdFromFile("func", false, function ($) {
 
 createCmdFromFile("run", false, function ($) {
     if (utility.getArgs($.cmd, 2, 1) && utility.$checkBrackets(utility.getArgs($.cmd, 2, 1))) {
-        let args = utility.parseFunction(utility.getArgs($.cmd, 2, 1)).split("; ")
+        let args = utility.parseFunction(utility.getArgs($.cmd, 2, 1)).split(", ")
 
         let returned = $.cmd.split(" ")[1]
 
@@ -39,7 +39,7 @@ createCmdFromFile("run", false, function ($) {
                             }
                         }
 
-                        utility.makeVariable($name, $value, $value, utility.getFunction(returned).name || "null")
+                        handleCommand(`val ${$name} = ${$value}`, utility.getFunction(returned).name || "null", "", 1)
                     }
                 }
 

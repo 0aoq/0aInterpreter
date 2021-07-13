@@ -49,11 +49,16 @@
 - [getLineAfterCmd](https://0aoq.github.io/0aInterpreter/?md/api/customs/getLineAfterCmd.md)
 - [parseVariablesFromWords](https://0aoq.github.io/0aInterpreter/?md/api/customs/parseVariablesFromWords.md)
 
-# Configuration Files
+## Configuration Files
 
-- [introduction](https://0aoq.github.io/0aInterpreter/?md/config/introduction.md)
+- [Introduction](https://0aoq.github.io/0aInterpreter/?md/config/introduction.md)
+### Configuration Values
 - [specifyVal](https://0aoq.github.io/0aInterpreter/?md/config/specifyVal.md)
 - [allowFileLoading](https://0aoq.github.io/0aInterpreter/?md/config/allowFileLoading.md)
-- [allowMultiLine](https://0aoq.github.io/0aInterpreter/?md/config/speallowMultiLinecifyVal.md)
+- [allowMultiLine](https://0aoq.github.io/0aInterpreter/?md/config/allowMultiLine.md)
+
+## npm
+
+- [Introduction](https://0aoq.github.io/0aInterpreter/?md/npm/introduction.md)
 
 <br><br>

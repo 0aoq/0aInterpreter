@@ -1,6 +1,6 @@
 {
     "name": "0ainterpreter",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "description": "Basic node.js command line interpreter for a custom language.",
     "main": "package/core/npm.js",
     "dependencies": {
@@ -23,5 +23,8 @@
     "bugs": {
         "url": "https://github.com/0aoq/0aInterpreter/issues"
     },
-    "homepage": "https://0aoq.github.io/0aInterpreter/"
+    "homepage": "https://0aoq.github.io/0aInterpreter/",
+    "keywords": [
+        "interpreter"
+    ]
 }

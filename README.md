@@ -1,9 +1,11 @@
 # 0a Interpreter
 
-Note that 0aInterpreter is meant to be used as a CLI, if using from npm use `buildLaunch()` to create a batch file to launch 0aInterpreter.
-If launched from npm use the `run()` function to run a command from your file, configuration files, file loading, and custom commands are disabled if running from npm.
+Note that 0aInterpreter is meant to be used as a CLI, if using from npm inside of a javascript file with require or import use `buildLaunch()` to create a batch file to launch 0aInterpreter.
+If launched from npm into a javascript file, use the `run()` function to run a command from your file. Note that configuration files, file loading, and custom commands are disabled if running by import and require.
 
 If downloading from github, make sure you use the typescript compiler to compile the typescript files into javascript files. 0aInterpreter can be run from `package/core/index.js` after being compiled.
+
+**If downloading from npm**, it is recommended that you run `buildLaunch()` and then use the generated batch file to run 0aInterpreter.
 
 ## About
 

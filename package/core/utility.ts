@@ -1,3 +1,4 @@
+import { Token } from "./0NODE.js"
 import { handleCommand, variables, functions, parseHold, parsedLines, config } from "./index.js"
 
 const fs = require("fs")
@@ -237,11 +238,11 @@ export const parseCommands2 = function ($content: string, $calling: string = "nu
 }
 
 export const parseString = function ($content: string) {
-    return $content.split('"')[1].split('"')[0]
+    return $content.split(Token.STRING)[1].split(Token.STRING)[0]
 }
 
 export const parseFunction = function ($content: string) {
-    return $content.split(")")[0].split("(")[1]
+    return $content.split(Token.CLOSEFUNC)[0].split(Token.OPENFUNC)[1]
 }
 
 export let returnedFromLine = []
@@ -297,18 +298,25 @@ export const math = function (cmd) {
             let num1 = parseInt(spaces[index])
             let num2 = parseInt(spaces[index + 2])
 
-            let supportedOperators = ['+', '-', '*', '/', '^', '_/']
+            let supportedOperators = [
+                Token.PLUS, 
+                Token.MINUS, 
+                Token.AST, 
+                Token.CARET, 
+                Token.RSLASH, 
+                '_/'
+            ]
 
             if (!isNaN(num2) && !isNaN(num1) && supportedOperators.includes(operator)) {
-                if (operator == "+") {
+                if (operator == Token.PLUS) {
                     console.log(num1 + num2)
-                } else if (operator == "-") {
+                } else if (operator == Token.MINUS) {
                     console.log(num1 - num2)
-                } else if (operator == "*") {
+                } else if (operator == Token.AST) {
                     console.log(num1 * num2)
-                } else if (operator == "/") {
+                } else if (operator == Token.RSLASH) {
                     console.log(num1 / num2)
-                } else if (operator == "^") {
+                } else if (operator == Token.CARET) {
                     console.log(Math.pow(num1, num2))
                 } else {
                     handleCommand(`SyntaxError Operator not supported/undefined.`)
@@ -324,7 +332,38 @@ export const math = function (cmd) {
     }
 }
 
-export const replaceValue = function (cmd: string, toReplace: string, value: string) { return cmd.replaceAll(toReplace, value) }
+export const replaceValue = function (cmd: string, toReplace: string, value: string) {
+    cmd = cmd.replaceAll(toReplace, value) 
+    return cmd
+}
+
+export const getStringType = function ($value: string) { // WIP
+    if (isNaN(parseInt($value))) {
+        if ($value[0] == Token.STRING) {
+            return 'string'
+        } else if ($value[0] == Token.OPEN_BRACE) {
+            if ($checkBrackets($value)) {
+                return 'table'
+            } else {
+                handleCommand("SyntaxError brackets not opened and closed properly.", "getStringType", "", 1)
+            }
+        } else {
+            return 'null'
+        }
+    } else if (!isNaN(parseInt($value))) {
+        return 'int'
+    }
+}
+
+export const removeFromArray = function (array, indexOf) {
+    for( var i = 0; i < array.length; i++){ 
+        if (i === indexOf) { 
+            array.splice(i, 1); 
+        }
+    }
+
+    return array
+}
 
 // exports
 
@@ -336,6 +375,7 @@ export default { // every default function
     getFunction,
     getVariable,
     getBoolean,
+    getStringType,
     // parsers
     parseString,
     parseVariables,
@@ -354,5 +394,6 @@ export default { // every default function
     makeVariable,
     splitFlags,
     math,
-    replaceValue
+    replaceValue,
+    removeFromArray
 };

@@ -12,6 +12,7 @@ import * as inquirer from 'inquirer'
 import * as utility from './utility.js'
 import { parse } from '../exports/parse.js'
 import { configparse } from '../exports/configparse.js'
+import { Node, NodeType, NodeScope, Token } from './0NODE.js';
 
 http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -108,7 +109,7 @@ export const findCmd = function (cmd, list = utility.cmds) {
 
     for (let $cmd of list) {
         for (let space of split) {
-            if (__indexed < 3) { // limit
+            if (__indexed <= 3) { // limit
                 if (space == $cmd) {
                     return $cmd
                 }
@@ -123,7 +124,7 @@ export const getLineAfterCmd = function (cmd: string, splitBy: string) {
 
 // run
 
-export const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number) {
+export const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number, afterInput?) {
     // all new required commands should be created in a custom command file.
 
     for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000, Error: cmd.replaceAll is not a function.
@@ -209,22 +210,19 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                 utility.getVariable('val:' + returned, callingFrom).val = utility.getArgs(cmd, 1, 0).split("= ")[1]
             }
         } else if (!cmd.split(" ") || !utility.cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
-            if (cmd.split(" ")[1]) {
+            let $spaces = cmd.split(" ")
+
+            if ($spaces.length >= 2) {
                 // IF A SECOND WORD EXISTS
-                if (utility.parseFunction(cmd) && isNaN(parseInt(utility.parseFunction(cmd).split(" ")[0]))) {
-                    // IF NO NUMBERS FOR MATHEMATICS
-                    handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
+                if (utility.$checkBrackets(cmd) && utility.parseFunction(cmd) && !isNaN(parseInt(utility.parseFunction(cmd).split(" ")[0]))) {
+                    // RUN MATHEMATICS; EXAMPLE: (1 + 2)
+                    utility.math(utility.parseFunction(cmd))
+                } else if (utility.getFunction($spaces[0]) && $spaces[1][0] == "(" && utility.$checkBrackets(getLineAfterCmd(cmd, $spaces[0]))) {
+                    // RUN FUNCTIONS WITHOUT TYPING "run" COMMAND
+                    handleCommand(`run ${$spaces[0]} (${utility.parseFunction(getLineAfterCmd(cmd, $spaces[0]))})`)
                 } else {
-                    if (utility.$checkBrackets(cmd) && utility.parseFunction(cmd)) {
-                        // RUN MATHEMATICS; EXAMPLE: (1 + 2)
-                        utility.math(utility.parseFunction(cmd))
-                    } else if (utility.getFunction(cmd.split(" ")[0]) && cmd.split(" ")[1][0] == "(" && utility.$checkBrackets(getLineAfterCmd(cmd, cmd.split(" ")[0]))) {
-                        // RUN FUNCTIONS WITHOUT TYPING "run" COMMAND
-                        handleCommand(`run ${cmd.split(" ")[0]} (${utility.parseFunction(getLineAfterCmd(cmd, cmd.split(" ")[0]))})`)
-                    } else {
-                        // COMMAND DOESN'T EXIST
-                        handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
-                    }
+                    // COMMAND DOESN'T EXIST
+                    handleCommand(`SyntaxError "${cmd}" is not recognized as a valid keyword.`, callingFrom, addToVariables, line)
                 }
             } else {
                 // THROW ERROR IF NO SECOND WORD
@@ -239,12 +237,30 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
             let __cmd = getFromCustomCmds(space)
             if (__cmd && __spaces.indexOf(__cmd.name) <= 3) { // limit position that cmd can be called from to be 3 or under
                 const custom_cmd = __cmd
-                custom_cmd.run({
+
+                const __result = custom_cmd.run({
                     cmd: cmd,
                     callingFrom: callingFrom,
                     addToVariables: addToVariables,
                     line: line
                 })
+
+                const expression: Node = { // command status operation
+                    nodeType: NodeType.ReturnStatement,
+                    nodeScope: NodeScope.OneTime,
+                    evalutated: false,
+                    result: null // unneeded
+                }
+
+                if (afterInput) {
+                    afterInput(__result)
+                }
+
+                expression.evalutated = true
+
+                if (!expression.evalutated) {
+                    console.log(colors.bold(colors.red("Return statement has not yet been evalutated, an error might've occured.")))
+                }
             }
         }
     }
@@ -252,6 +268,12 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
 
 // .0aconfig
 configparse()
+
+// variables
+
+export const removeVariable = function (variable) {
+    variables = utility.removeFromArray(variables, variables.indexOf(variable))
+}
 
 // question prompt
 

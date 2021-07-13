@@ -4,7 +4,8 @@ export enum Type {
     BOOLEAN = 'BOOLEAN',
     STRING = 'STRING',
     NUMBER = 'NUMBER',
-    TABLE = 'TABLE'
+    TABLE = 'TABLE',
+    NULL = 'null'
 }
 
 export enum Token {

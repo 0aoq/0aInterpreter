@@ -1,8 +1,14 @@
-import { createCmdFromFile } from '../../../core/index.js';
+import { Type } from '../../../core/0node.js';
+import { createCmdFromFile, getLineAfterCmd } from '../../../core/index.js';
 import * as utility from '../../../core/utility.js'
 
 createCmdFromFile("typeof", false, function ($) {
-    // coming soon
     $.cmd = utility.parseVariables($.cmd, $.callingFrom, $.addToVariables)
-    return 'number' // using this function to test return values from custom cmds
+    
+    const after = getLineAfterCmd($.cmd, "typeof")
+    const __function = utility.parseFunction(after)
+
+    if (utility.$checkBrackets(after) && __function) {
+        return utility.getStringType(__function) || Type.NULL
+    }
 })

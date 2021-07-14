@@ -26,8 +26,6 @@ http.createServer(function (req, res) {
     res.end();
 }).listen(8080);
 
-export let npm = false
-
 export let variables = []
 export let functions = []
 
@@ -129,10 +127,10 @@ export const getLineBeforeCmd = function (cmd: string, splitBy: string) {
 // run
 
 export const handleCommand = async function (
-    cmd: string, 
-    callingFrom: string = "null", 
-    addToVariables: string = "", 
-    line?: number, 
+    cmd: string,
+    callingFrom: string = "null",
+    addToVariables: string = "",
+    line?: number,
     afterInput?,
     file: string = null
 ) {
@@ -243,38 +241,40 @@ export const handleCommand = async function (
         // ===============
         // FILE CMDS
         // ===============
-        let __spaces = cmd.split(" ")
-        for (let space of __spaces) {
-            let __cmd = getFromCustomCmds(space)
-            if (__cmd && __spaces.indexOf(__cmd.name) <= 3) { // limit position that cmd can be called from to be 3 or under
-                const custom_cmd = __cmd
+        for (let $cmd of cmd.split("; ")) {
+            let __spaces = $cmd.split(" ")
+            for (let space of __spaces) {
+                let __cmd = getFromCustomCmds(space)
+                if (__cmd && __spaces.indexOf(__cmd.name) <= 3) { // limit position that cmd can be called from to be 3 or under
+                    const custom_cmd = __cmd
 
-                const __result = custom_cmd.run({
-                    cmd: cmd,
-                    callingFrom: callingFrom,
-                    addToVariables: addToVariables,
-                    line: line,
-                    file: file,
-                    
-                    before: getLineBeforeCmd(cmd, custom_cmd.name),
-                    after: getLineAfterCmd(cmd, custom_cmd.name)
-                })
+                    const __result = custom_cmd.run({
+                        cmd: cmd,
+                        callingFrom: callingFrom,
+                        addToVariables: addToVariables,
+                        line: line,
+                        file: file,
 
-                const expression: Node = { // command status operation
-                    nodeType: NodeType.ReturnStatement,
-                    nodeScope: NodeScope.OneTime,
-                    evalutated: false,
-                    result: null // unneeded
-                }
+                        before: getLineBeforeCmd($cmd, custom_cmd.name),
+                        after: getLineAfterCmd($cmd, custom_cmd.name)
+                    })
 
-                if (afterInput) {
-                    afterInput(__result)
-                }
+                    const expression: Node = { // command status operation
+                        nodeType: NodeType.ReturnStatement,
+                        nodeScope: NodeScope.OneTime,
+                        evalutated: false,
+                        result: null // unneeded
+                    }
 
-                expression.evalutated = true
+                    if (afterInput) {
+                        afterInput(__result)
+                    }
 
-                if (!expression.evalutated) {
-                    console.log(colors.bold(colors.red("Return statement has not yet been evalutated, an error might've occured.")))
+                    expression.evalutated = true
+
+                    if (!expression.evalutated) {
+                        console.log(colors.bold(colors.red("Return statement has not yet been evalutated, an error might've occured.")))
+                    }
                 }
             }
         }
@@ -291,8 +291,6 @@ export const removeVariable = function (variable) {
 }
 
 // question prompt
-
-export const setnpm = function (boolean: boolean) { npm = boolean } // set npm value
 
 console.log('')
 console.log(colors.bold(colors.magenta('0a Interpreter ')) + 'Release Version: 0.8.1')
@@ -311,67 +309,65 @@ const promptcmd = function () {
     })
 }
 
-if (!npm) {
-    inquirer.prompt([{
-        type: 'rawlist',
-        name: 'action',
-        message: 'What do you want to do?',
-        choices: [
-            'Load from files',
-            'Enter command'
-        ],
-    }]).then((answers) => {
-        if (answers.action == "Load from files") {
-            inquirer.prompt([{
-                type: 'input',
-                name: 'filelocation',
-                message: 'Where would you like to load files from? (cd/scripts)',
-            }]).then(($answers) => {
-                if (config[0].allowFileLoading == true) {
-                    if ($answers.filelocation == "") {
-                        const __path = path.resolve(process.cwd(), "scripts")
+inquirer.prompt([{
+    type: 'rawlist',
+    name: 'action',
+    message: 'What do you want to do?',
+    choices: [
+        'Load from files',
+        'Enter command'
+    ],
+}]).then((answers) => {
+    if (answers.action == "Load from files") {
+        inquirer.prompt([{
+            type: 'input',
+            name: 'filelocation',
+            message: 'Where would you like to load files from? (cd/scripts)',
+        }]).then(($answers) => {
+            if (config[0].allowFileLoading == true) {
+                if ($answers.filelocation == "") {
+                    const __path = path.resolve(process.cwd(), "scripts")
 
-                        // LOAD .0a FILES FROM WORKING DIRECTORY/scripts
+                    // LOAD .0a FILES FROM WORKING DIRECTORY/scripts
 
-                        fs.readdir(__path, (err, files) => {
-                            if (err) {
-                                return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
-                            } else {
-                                files.forEach(file => {
-                                    setTimeout(() => {
-                                        handleCommand("exec " + path.resolve(__path, file))
-                                    }, 100);
-                                });
+                    fs.readdir(__path, (err, files) => {
+                        if (err) {
+                            return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
+                        } else {
+                            files.forEach(file => {
+                                setTimeout(() => {
+                                    handleCommand("exec " + path.resolve(__path, file))
+                                }, 100);
+                            });
 
-                                promptcmd()
-                            }
-                        });
-                    } else {
-                        // LOAD .0a FILES FROM DIRECT LOCATION
-
-                        fs.readdir($answers.filelocation, (err, files) => {
-                            if (err) {
-                                return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
-                            } else {
-                                files.forEach(file => {
-                                    setTimeout(() => {
-                                        handleCommand("exec " + $answers.filelocation + "/" + file)
-                                    }, 100);
-                                });
-
-                                promptcmd()
-                            }
-                        });
-                    }
+                            promptcmd()
+                        }
+                    });
                 } else {
-                    promptcmd()
+                    // LOAD .0a FILES FROM DIRECT LOCATION
+
+                    fs.readdir($answers.filelocation, (err, files) => {
+                        if (err) {
+                            return console.log(`Directory doesn't exist! Exiting to command line.`), promptcmd()
+                        } else {
+                            files.forEach(file => {
+                                setTimeout(() => {
+                                    handleCommand("exec " + $answers.filelocation + "/" + file)
+                                }, 100);
+                            });
+
+                            promptcmd()
+                        }
+                    });
                 }
-            });
-        } else {
-            promptcmd()
-        }
-    })
-}
+            } else {
+                promptcmd()
+            }
+        });
+    } else {
+        promptcmd()
+    }
+})
 
 // defaults
 
@@ -389,8 +385,6 @@ export default {
     multi_line_required,
     findCmd,
     getLineAfterCmd,
-    npm,
-    setnpm,
     getLineBeforeCmd
 }
 

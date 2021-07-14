@@ -6,7 +6,7 @@ const colors = require('colors')
 const path = require("path")
 
 createCmdFromFile("read", false, function ($) {
-    let returned = utility.parseVariables(utility.getArgs($.cmd, 2, 0), $.callingFrom,)
+    let returned = utility.parseVariables(utility.getArgs($.cmd, 2, 0), $.callingFrom, "", false, $.file)
     console.log(returned)
 
     fs.readFile(returned, 'utf8', function (err, data) {
@@ -23,7 +23,7 @@ createCmdFromFile("read", false, function ($) {
 createCmdFromFile("write", false, function ($) {
     let $name = utility.getArgs($.cmd, 2, 0).split(" ")[0]
             let $data = utility.getArgs($.cmd, 2, 1)
-            utility.parseVariables($name, $.callingFrom)
+            utility.parseVariables($name, $.callingFrom, "", false, $.file)
 
             utility.writeReturnErr($name, $data, false)
 })
@@ -31,7 +31,7 @@ createCmdFromFile("write", false, function ($) {
 createCmdFromFile("write_add", false, function ($) {
     let $name = utility.getArgs($.cmd, 2, 0).split(" ")[0]
             let $data = utility.getArgs($.cmd, 2, 1)
-            utility.parseVariables($name, $.callingFrom)
+            utility.parseVariables($name, $.callingFrom, "", false, $.file)
 
             utility.writeReturnErr($name, $data, true)
 })
@@ -65,7 +65,7 @@ createCmdFromFile("mk", false, function ($) {
         });
     }
 
-    fs.writeFile(utility.parseVariables($.cmd.split(" ")[2], $.callingFrom), "", function (err) {
+    fs.writeFile(utility.parseVariables($.cmd.split(" ")[2], $.callingFrom, "", false, $.file), "", function (err) {
         if (err) {
             console.log(err)
         } else {

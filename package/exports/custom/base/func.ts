@@ -45,7 +45,7 @@ createCmdFromFile("run", false, function ($) {
 
                 let uniqueId = "__&func:" + utility.getFunction(returned).name
                 for (let command of utility.getFunction(returned).run) {
-                    handleCommand(utility.parseVariables(command, utility.getFunction(returned).name, uniqueId), utility.getFunction(returned).name, uniqueId)
+                    handleCommand(utility.parseVariables(command, utility.getFunction(returned).name, uniqueId, false, $.file), utility.getFunction(returned).name, uniqueId)
                 }
             }
         } else {

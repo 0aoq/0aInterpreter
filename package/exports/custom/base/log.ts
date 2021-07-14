@@ -3,7 +3,7 @@ import { createCmdFromFile, findCmd, getLineAfterCmd, handleCommand } from '../.
 import { $checkBrackets, $checkQuotes, cmds, getArgs, getVariable, parseDoubleFunction, parseFunction, parseString, parseVariablesFromWords } from '../../../core/utility.js';
 
 createCmdFromFile("log", false, function ($) {
-    $.cmd = parseVariablesFromWords($.cmd, $.callingFrom, $.addToVariables)
+    $.cmd = parseVariablesFromWords($.cmd, $.callingFrom, $.addToVariables, $.file)
     let after = getLineAfterCmd($.cmd, "log")
     
     // really long error handling section
@@ -24,15 +24,15 @@ createCmdFromFile("log", false, function ($) {
             } else {
                 handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
             }
-        } else if (getVariable(parseFunction(after)) || !isNaN(parseInt(parseFunction(after))) || cmds.includes(parseFunction(after).split(" ")[0])) { // is a variable/int
+        } else if ( // is a variable/int
+            getVariable(parseFunction(after), $.callingFrom, $.file) || 
+            !isNaN(parseInt(parseFunction(after))) || 
+            cmds.includes(parseFunction(after).split(" ")[0]
+        )) {
             if ($checkBrackets(after)) {
-                if (getVariable(parseFunction(after))) { // specific for variable
-                    let variable = getVariable(parseFunction(after))
-                    if (variable.__type == "table") {
-                        console.log(JSON.parse(variable.absoluteValue)) // parse to table
-                    } else {
-                        console.log(variable.absoluteValue)
-                    }
+                if (getVariable(parseFunction(after), $.callingFrom, $.file)) { // specific for variable
+                    let variable = getVariable(parseFunction(after), $.callingFrom, $.file)
+                    console.log(variable.absoluteValue)
                 } else if (cmds.includes(parseFunction(after).split(" ")[0])) {
                     let __cmd = parseDoubleFunction(after)
                     

@@ -46,7 +46,7 @@ export function parse(cmd: string, callingFrom: string, addToVariables: string, 
                         __self = getFromHold(getArgs(line, 2, 0).split(" do")[0].split(" --sandbox ")[0])
                         __self.active = true
 
-                        handleCommand(line, callingFrom, addToVariables, parsed)
+                        handleCommand(line, callingFrom, addToVariables, parsed, null, returned)
                         parsedLines.push(line)
                     }
 
@@ -63,7 +63,7 @@ export function parse(cmd: string, callingFrom: string, addToVariables: string, 
                             if (multi_line_required.includes(findCmd(line))) {
                                 $s()
                             } else {
-                                handleCommand(line, callingFrom, addToVariables, parsed)
+                                handleCommand(line, callingFrom, addToVariables, parsed, null, returned) // outside of function
                                 parsedLines.push(line)
                             }
                         } else {

@@ -78,10 +78,11 @@ export const makeVariable = function (
     $absoluteValue: any,
     $function,
     $type: string = "undefined",
-    $mods: [] = []
+    $mods: string[] = [],
+    $file: string = null
 ) {
     if ($function == "null") {
-        if (getVariable('val:' + $name.split(" = ")[0], $function) == null) {
+        if (getVariable('val:' + $name.split(" = ")[0], $function, $file) == null) {
             if (!config[0].specifyVal) { // <specifyVal>    </specifyVal>
                 variables.push(
                     {
@@ -90,7 +91,8 @@ export const makeVariable = function (
                         absoluteValue: $absoluteValue,
                         function: "null",
                         modifiers: $mods,
-                        __type: $type
+                        __type: $type,
+                        file: $file
                     }
                 )
             } else {
@@ -101,12 +103,13 @@ export const makeVariable = function (
                         absoluteValue: $absoluteValue,
                         function: "null",
                         modifiers: $mods,
-                        __type: $type
+                        __type: $type,
+                        file: $file
                     }
                 )
             }
         } else {
-            let __val = getVariable('val:' + $name.split(" = ")[0], $function)
+            let __val = getVariable('val:' + $name.split(" = ")[0], $function, $file)
 
             if (!__val.modifiers.includes('static')) {
                 __val.val = $value
@@ -117,7 +120,7 @@ export const makeVariable = function (
             }
         }
     } else {
-        if (getVariable('$:' + $name.split(" = ")[0], $function) == null) {
+        if (getVariable('$:' + $name.split(" = ")[0], $function, $file) == null) {
             variables.push(
                 {
                     name: '$:' + $name.split(" = ")[0] + "__&func:" + $function,
@@ -125,11 +128,12 @@ export const makeVariable = function (
                     absoluteValue: $absoluteValue,
                     function: $function,
                     modifiers: $mods,
-                    __type: $type
+                    __type: $type,
+                    file: $file
                 }
             )
         } else {
-            let __val = getVariable('val:' + $name.split(" = ")[0], $function)
+            let __val = getVariable('val:' + $name.split(" = ")[0], $function, $file)
 
             __val.val = $value
             __val = assignVariableAbsolute(__val)
@@ -138,16 +142,17 @@ export const makeVariable = function (
     }
 }
 
-export const getVariable = function ($name: string, $function: string = "null") {
+export const getVariable = function ($name: string, $function: string = "null", file: string) {
     if ($function == "null") {
         for (let variable of variables) {
-            if (variable.name == $name) {
+            if (variable.name == $name && variable.file == file) {
                 return variable
             }
         }
     } else {
+        console.log(file)
         for (let variable of variables) {
-            if (variable.name == $name && $function == variable.function) {
+            if (variable.name == $name && $function == variable.function && variable.file == file) {
                 return variable
             }
         }
@@ -164,30 +169,36 @@ export const getFunction = function ($name: string) {
 
 // Parsing helper functions
 
-export const parseVariables = function ($content: string, $calling: string = "null", $add: string = "", $absolute: boolean = false) {
+export const parseVariables = function (
+    $content: string, 
+    $calling: string = "null", 
+    $add: string = "", 
+    $absolute: boolean = false,
+    $file: string
+) {
     $content = $content.split("//")[0]
 
     let words = $content.split(" ")
     for (let word of words) {
         let $ = word + $add
 
-        let val = getVariable($, $calling)
+        let val = getVariable($, $calling, $file)
 
         if (val != null) {
             if (!$absolute) {
                 if (val.function == "null") {
-                    $content = $content.replace(word, getVariable($, $calling).val)
+                    $content = $content.replace(word, getVariable($, $calling, $file).val)
                 } else {
                     if ($calling = val.function) {
-                        $content = $content.replace(word, getVariable($, $calling).val)
+                        $content = $content.replace(word, getVariable($, $calling, $file).val)
                     }
                 }
             } else {
                 if (val.function == "null") {
-                    $content = $content.replace(word, getVariable($, $calling).absoluteValue)
+                    $content = $content.replace(word, getVariable($, $calling, $file).absoluteValue)
                 } else {
                     if ($calling = val.function) {
-                        $content = $content.replace(word, getVariable($, $calling).absoluteValue)
+                        $content = $content.replace(word, getVariable($, $calling, $file).absoluteValue)
                     }
                 }
             }
@@ -199,14 +210,14 @@ export const parseVariables = function ($content: string, $calling: string = "nu
     for (let word of __words) {
         let $ = word + $add
 
-        let val = getVariable($, $calling)
+        let val = getVariable($, $calling, $file)
 
         if (val != null) {
             if (val.function == "null") {
-                $content = $content.replace(word, getVariable($, $calling).val)
+                $content = $content.replace(word, getVariable($, $calling, $file).val)
             } else {
                 if ($calling = val.function) {
-                    $content = $content.replace(word, getVariable($, $calling).val)
+                    $content = $content.replace(word, getVariable($, $calling, $file).val)
                 }
             }
         }
@@ -298,11 +309,11 @@ export const splitFlags = function ($string: string, flag: string) {
     return $string.split("--" + flag)
 }
 
-export const parseVariablesFromWords = function (s, callingFrom, addToVariables) {
+export const parseVariablesFromWords = function (s, callingFrom, addToVariables, file) {
     let $ = s.split(" ")
 
     for (const $_ of $) { // parse all variables from every word
-        s.replace($_, parseVariables($_, callingFrom, addToVariables))
+        s.replace($_, parseVariables($_, callingFrom, addToVariables, false, file))
     }
 
     return s

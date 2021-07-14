@@ -7,7 +7,7 @@ const colors = require('colors')
 createCmdFromFile("if", false, function ($) {
     // Syntax: 'if x == y do log ("true") else log ("false")'
 
-    $.cmd = parseVariables($.cmd, $.callingFrom, $.addToVariables)
+    $.cmd = parseVariables($.cmd, $.callingFrom, $.addToVariables, false, $.file)
 
     const expression: Node = { // command status operation
         nodeType: NodeType.IfExpression,

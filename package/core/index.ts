@@ -128,7 +128,14 @@ export const getLineBeforeCmd = function (cmd: string, splitBy: string) {
 
 // run
 
-export const handleCommand = async function (cmd: string, callingFrom: string = "null", addToVariables: string = "", line?: number, afterInput?) {
+export const handleCommand = async function (
+    cmd: string, 
+    callingFrom: string = "null", 
+    addToVariables: string = "", 
+    line?: number, 
+    afterInput?,
+    file: string = null
+) {
     // all new required commands should be created in a custom command file.
 
     for (let i = 0; i < 10000; i++) { // remove tabs up to 10,000, Error: cmd.replaceAll is not a function.
@@ -210,8 +217,8 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
         else if ($[0] == "set") { // &;cmd[set]
             let returned = cmd.split(" ")[0]
 
-            if (utility.getVariable('val:' + returned, callingFrom) != null) {
-                utility.getVariable('val:' + returned, callingFrom).val = utility.getArgs(cmd, 1, 0).split("= ")[1]
+            if (utility.getVariable('val:' + returned, callingFrom, file) != null) {
+                utility.getVariable('val:' + returned, callingFrom, file).val = utility.getArgs(cmd, 1, 0).split("= ")[1]
             }
         } else if (!cmd.split(" ") || !utility.cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
             let $spaces = cmd.split(" ")
@@ -247,6 +254,7 @@ export const handleCommand = async function (cmd: string, callingFrom: string = 
                     callingFrom: callingFrom,
                     addToVariables: addToVariables,
                     line: line,
+                    file: file,
                     
                     before: getLineBeforeCmd(cmd, custom_cmd.name),
                     after: getLineAfterCmd(cmd, custom_cmd.name)

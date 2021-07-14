@@ -20,12 +20,12 @@ createCmdFromFile("for", false, function ($) {
                         handleCommand(split__do[1], "forloop", $.addToVariables, $.line)
                         await sleep(parseInt(split__less_than[1].split(", ")[1]))
                     } else if (i < parseInt(split__less_than[1].split(", ")[0])) { // reset time waited so it can be reused by other for statements
-                        getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop").val++ // round time waited up to total
-                        getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop").name = "[loop finished]"
+                        getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop", $.file).val++ // round time waited up to total
+                        getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop", $.file).name = "[loop finished]"
                     }
 
-                    if (getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop")) {
-                        getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop").val++ // update time waited: log ($:i)
+                    if (getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop", $.file)) {
+                        getVariable("$:" + split__less_than[0] + "__&func:forloop", "forloop", $.file).val++ // update time waited: log ($:i)
                     }
                 }
             }

@@ -8,7 +8,7 @@ createCmdFromFile("delete", false, function ($) {
     const __function = utility.parseFunction(after)
     
     if (utility.$checkBrackets(after) && __function) {
-        let possible_val = utility.getVariable(__function, $.callingFrom)
+        let possible_val = utility.getVariable(__function, $.callingFrom, $.file)
         
         if (possible_val) {
             removeVariable(possible_val)

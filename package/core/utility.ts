@@ -1,4 +1,4 @@
-import { Token } from "./0NODE.js"
+import { Token } from './datatypes.js'
 import { handleCommand, variables, functions, parseHold, parsedLines, config } from "./index.js"
 
 const fs = require("fs")

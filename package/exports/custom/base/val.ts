@@ -1,4 +1,4 @@
-import { Token } from '../../../core/0node.js';
+import { Token } from '../../../core/datatypes.js';
 import { createCmdFromFile, findCmd, getLineAfterCmd, getLineBeforeCmd, handleCommand } from '../../../core/index.js';
 import { $checkBrackets, $checkQuotes, cmds, getVariable, makeVariable, parseVariables } from '../../../core/utility.js';
 

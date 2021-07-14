@@ -1,4 +1,4 @@
-import { Type } from '../../../core/0node.js';
+import { Type } from '../../../core/datatypes.js';
 import { createCmdFromFile, getLineAfterCmd } from '../../../core/index.js';
 import * as utility from '../../../core/utility.js'
 

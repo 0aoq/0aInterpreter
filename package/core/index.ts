@@ -12,7 +12,7 @@ import * as inquirer from 'inquirer'
 import * as utility from './utility.js'
 import { parse } from '../exports/parse.js'
 import { configparse } from '../exports/configparse.js'
-import { Node, NodeType, NodeScope, Token } from './0NODE.js';
+import { Node, NodeType, NodeScope, Token } from './datatypes.js';
 
 http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' });

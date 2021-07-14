@@ -1,5 +1,6 @@
-import { createCmdFromFile, getLineAfterCmd, handleCommand } from '../../../core/index.js';
-import { $checkBrackets, $checkQuotes, cmds, getArgs, getVariable, parseFunction, parseString, parseVariablesFromWords } from '../../../core/utility.js';
+import { Token } from '../../../core/0node.js';
+import { createCmdFromFile, findCmd, getLineAfterCmd, handleCommand } from '../../../core/index.js';
+import { $checkBrackets, $checkQuotes, cmds, getArgs, getVariable, parseDoubleFunction, parseFunction, parseString, parseVariablesFromWords } from '../../../core/utility.js';
 
 createCmdFromFile("log", false, function ($) {
     $.cmd = parseVariablesFromWords($.cmd, $.callingFrom, $.addToVariables)
@@ -33,7 +34,11 @@ createCmdFromFile("log", false, function ($) {
                         console.log(variable.absoluteValue)
                     }
                 } else if (cmds.includes(parseFunction(after).split(" ")[0])) {
-                    handleCommand(parseFunction(after), "log", $.addToVariables, $.line)
+                    let __cmd = parseDoubleFunction(after)
+                    
+                    handleCommand(`${__cmd}`, $.callingFrom, $.addToVariables, $.line, function (input) {
+                        console.log(input)
+                    })
                 } else {
                     if (!isNaN(parseInt(parseFunction(after)))) { // number
                         console.log(parseInt(parseFunction(after)))

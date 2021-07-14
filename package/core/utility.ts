@@ -262,6 +262,11 @@ export const parseFunction = function ($content: string) {
     return $content.split(Token.CLOSEFUNC)[0].split(Token.OPENFUNC)[1]
 }
 
+export const parseDoubleFunction = function ($content: string, start: number = 0) {
+    let __ = $content.split(Token.CLOSEFUNC)[start].split(Token.OPENFUNC)
+    return __[start + 1] + "(" + __[start + 2] + ")"
+}
+
 export let returnedFromLine = []
 
 export function getFromReturned(line) {
@@ -400,6 +405,7 @@ export default { // every default function
     parseCommands2,
     parseFunction,
     parseVariablesFromWords,
+    parseDoubleFunction,
     // checks
     $checkBrackets,
     $checkQuotes,

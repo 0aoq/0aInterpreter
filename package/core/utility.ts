@@ -112,9 +112,21 @@ export const makeVariable = function (
             let __val = getVariable('val:' + $name.split(" = ")[0], $function, $file)
 
             if (!__val.modifiers.includes('static')) {
-                __val.val = $value
-                __val = assignVariableAbsolute(__val)
-                __val.__type = $type
+                const assign = function () {
+                    __val.val = $value
+                    __val = assignVariableAbsolute(__val)
+                    __val.__type = $type
+                }
+
+                if (!__val.modifiers.includes('type')) {
+                    assign()
+                } else {
+                    if (__val.modifiers.includes('type') && $type == __val.__type) {
+                        assign()
+                    } else {
+                        handleCommand(`SyntaxError Cannot assign type "${$type}" to a variable of type "${__val.__type}"`, $function)
+                    }
+                }
             } else if (__val.modifiers.includes('static')) {
                 handleCommand(`SyntaxError Attempted to reassign a static variable.`, $function)
             }
@@ -145,15 +157,26 @@ export const makeVariable = function (
 export const getVariable = function ($name: string, $function: string = "null", file: string) {
     if ($function == "null") {
         for (let variable of variables) {
-            if (variable.name == $name && variable.file == file) {
-                return variable
+            if (file) {
+                if (variable.name == $name && variable.file == file) {
+                    return variable
+                }
+            } else {
+                if (variable.name == $name) {
+                    return variable
+                }
             }
         }
     } else {
-        console.log(file)
         for (let variable of variables) {
-            if (variable.name == $name && $function == variable.function && variable.file == file) {
-                return variable
+            if (file) {
+                if (variable.name == $name && $function == variable.function && variable.file == file) {
+                    return variable
+                }
+            } else {
+                if (variable.name == $name && $function == variable.function) {
+                    return variable
+                }
             }
         }
     }
@@ -170,58 +193,51 @@ export const getFunction = function ($name: string) {
 // Parsing helper functions
 
 export const parseVariables = function (
-    $content: string, 
-    $calling: string = "null", 
-    $add: string = "", 
+    $content: string,
+    $calling: string = "null",
+    $add: string = "",
     $absolute: boolean = false,
     $file: string
 ) {
-    $content = $content.split("//")[0]
-
-    let words = $content.split(" ")
-    for (let word of words) {
-        let $ = word + $add
-
-        let val = getVariable($, $calling, $file)
-
-        if (val != null) {
-            if (!$absolute) {
-                if (val.function == "null") {
-                    $content = $content.replace(word, getVariable($, $calling, $file).val)
-                } else {
-                    if ($calling = val.function) {
+    $content = $content.split("# ")[0]
+    
+    const __util = function (list = $content.split(" ")) {
+        for (let word of list) {
+            let $ = word + $add
+    
+            let val = getVariable($, $calling, $file)
+    
+            if (val != null) {
+                if (!$absolute) {
+                    if (val.function == "null") {
                         $content = $content.replace(word, getVariable($, $calling, $file).val)
+                    } else {
+                        if ($calling = val.function) {
+                            $content = $content.replace(word, getVariable($, $calling, $file).val)
+                        }
                     }
-                }
-            } else {
-                if (val.function == "null") {
-                    $content = $content.replace(word, getVariable($, $calling, $file).absoluteValue)
                 } else {
-                    if ($calling = val.function) {
+                    if (val.function == "null") {
                         $content = $content.replace(word, getVariable($, $calling, $file).absoluteValue)
+                    } else {
+                        if ($calling == val.function) {
+                            $content = $content.replace(word, getVariable($, $calling, $file).absoluteValue)
+                        }
                     }
                 }
             }
         }
     }
 
-    let __words = $content.split(")")[0].split("(")
-
-    for (let word of __words) {
-        let $ = word + $add
-
-        let val = getVariable($, $calling, $file)
-
-        if (val != null) {
-            if (val.function == "null") {
-                $content = $content.replace(word, getVariable($, $calling, $file).val)
-            } else {
-                if ($calling = val.function) {
-                    $content = $content.replace(word, getVariable($, $calling, $file).val)
-                }
-            }
-        }
+    __util() // default parsing list
+    
+    if (parseFunction($content)) {
+        __util(parseFunction($content).split(" ")) // inside of functions
     }
+
+    /* if (parseString($content)) {
+        __util(parseString($content).split(" ")) // inside of strings
+    } */
 
     return $content
 }
@@ -237,7 +253,7 @@ export let $functions = [
 ]
 
 export let modifiers = [
-    'static'
+    'static', 'filelocked', 'type'
 ]
 
 export const parseCommands = function ($content: string, $calling: string = "null") {
@@ -320,7 +336,7 @@ export const parseVariablesFromWords = function (s, callingFrom, addToVariables,
 }
 
 export const math = function (cmd) {
-    const spaces = cmd.split(" ")
+    const spaces = parseVariables(cmd, "null", "", true, null).split(" ")
 
     for (let space of spaces) {
         if (!isNaN(parseInt(space))) {
@@ -342,21 +358,21 @@ export const math = function (cmd) {
 
             if (!isNaN(num2) && !isNaN(num1) && supportedOperators.includes(operator)) {
                 if (operator == Token.PLUS) {
-                    console.log(num1 + num2)
+                    return num1 + num2
                 } else if (operator == Token.MINUS) {
-                    console.log(num1 - num2)
+                    return num1 - num2
                 } else if (operator == Token.AST) {
-                    console.log(num1 * num2)
+                    return num1 * num2
                 } else if (operator == Token.RSLASH) {
-                    console.log(num1 / num2)
+                    return num1 / num2
                 } else if (operator == Token.CARET) {
-                    console.log(Math.pow(num1, num2))
+                    return Math.pow(num1, num2)
                 } else {
                     handleCommand(`SyntaxError Operator not supported/undefined.`)
                 }
             } else if (!isNaN(num1) && supportedOperators.includes(operator)) {
                 if (operator == "_/") {
-                    console.log(Math.sqrt(num1))
+                    return Math.sqrt(num1)
                 } else {
                     handleCommand(`SyntaxError Operator not supported/undefined.`)
                 }

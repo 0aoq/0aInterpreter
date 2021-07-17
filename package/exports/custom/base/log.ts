@@ -1,9 +1,9 @@
 import { Token } from '../../../core/datatypes.js';
 import { createCmdFromFile, findCmd, getLineAfterCmd, handleCommand } from '../../../core/index.js';
-import { $checkBrackets, $checkQuotes, cmds, getArgs, getVariable, parseDoubleFunction, parseFunction, parseString, parseVariablesFromWords } from '../../../core/utility.js';
+import { $checkBrackets, $checkQuotes, cmds, getArgs, getVariable, parseDoubleFunction, parseFunction, parseString, parseVariables, parseVariablesFromWords } from '../../../core/utility.js';
 
 createCmdFromFile("log", false, function ($) {
-    $.cmd = parseVariablesFromWords($.cmd, $.callingFrom, $.addToVariables, $.file)
+    $.cmd = parseVariables($.cmd, $.calling, $.add, true, $.file)
     let after = getLineAfterCmd($.cmd, "log")
     
     // really long error handling section

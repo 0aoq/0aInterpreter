@@ -213,11 +213,7 @@ export const handleCommand = async function (
         // IF NO CMD
         // ===============
         else if ($[0] == "set") { // &;cmd[set]
-            let returned = cmd.split(" ")[0]
-
-            if (utility.getVariable('val:' + returned, callingFrom, file) != null) {
-                utility.getVariable('val:' + returned, callingFrom, file).val = utility.getArgs(cmd, 1, 0).split("= ")[1]
-            }
+            handleCommand(`val ${cmd.split("set ")[1]}`, callingFrom, addToVariables, line, afterInput, file)
         } else if (!cmd.split(" ") || !utility.cmds.includes(cmd.split(" ")[0]) && !getFromCustomCmds(cmd.split(" ")[0])) {
             let $spaces = cmd.split(" ")
 

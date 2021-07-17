@@ -1,4 +1,4 @@
-import { createCmdFromFile, functions, getFromHold, handleCommand, variables } from '../../../core/index.js';
+import { createCmdFromFile, functions, getFromHold, handleCommand, removeVariable, variables } from '../../../core/index.js';
 import * as utility from '../../../core/utility.js'
 
 createCmdFromFile("func", false, function ($) {
@@ -39,7 +39,9 @@ createCmdFromFile("run", false, function ($) {
                             }
                         }
 
-                        handleCommand(`val ${$name} = ${$value}`, utility.getFunction(returned).name || "null", "", 1)
+                        if ($name && $value) {
+                            handleCommand(`val ${$name} = ${$value}`, utility.getFunction(returned).name || "null", "", 1)
+                        }
                     }
                 }
 

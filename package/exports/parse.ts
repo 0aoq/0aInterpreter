@@ -1,9 +1,10 @@
 import { handleCommand, parseHold, parsedLines, getFromHold, multi_line_required, findCmd, getLineAfterCmd, config } from "../core/index.js"
 import { getArgs, getBoolean } from '../core/utility.js'
 
-
 const colors = require('colors')
 import * as fs from 'fs'
+
+// primary interpreter, runs commands and handles all lines
 
 export function parse(cmd: string, callingFrom: string, addToVariables: string, line: number) {
     if (!config[0].allowFileLoading) { return }

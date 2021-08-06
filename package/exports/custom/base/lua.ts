@@ -8,12 +8,14 @@ createCmdFromFile("lua.new", true, function ($) {
         let name = splitFlags(getArgs($.cmd, 2, 0).split(" do")[0], "sandbox")[0] // get sandbox flag
         
         setTimeout(() => {
-            const CreateFiles = fs.createWriteStream(process.cwd() + "/" + name + ".lua", {
-                flags: 'a'
-            })
-
-            for (let line of getFromHold(name).lines) {
-                CreateFiles.write(line + '\r\n')
+            if (name) {
+                const CreateFiles = fs.createWriteStream(process.cwd() + "/" + name + ".lua", {
+                    flags: 'a'
+                })
+    
+                for (let line of getFromHold(name).lines) {
+                    CreateFiles.write(line + '\r\n')
+                }
             }
         }, 1);
     } else {

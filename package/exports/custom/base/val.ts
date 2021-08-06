@@ -38,7 +38,7 @@ createCmdFromFile("val", false, function ($) {
                 if ($checkBrackets($value)) {
                     makeVariable($name, $value, JSON.stringify($value), $.callingFrom || null, "table", mods, $.file)
                 } else {
-                    handleCommand("SyntaxError brackets not opened and closed properly.", $.callingFrom, $.addToVariables, $.line, null, $.file)
+                    handleCommand("SyntaxError val function not opened and closed properly.", $.callingFrom, $.addToVariables, $.line, null, $.file)
                 }
             } else if (findCmd($value)) {
                 let __cmd = findCmd($value)

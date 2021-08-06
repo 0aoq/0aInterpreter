@@ -16,13 +16,13 @@ createCmdFromFile("log", false, function ($) {
                     handleCommand("SyntaxError quotes weren't closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
                 }
             } else {
-                handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
+                handleCommand("SyntaxError log function not opened and closed properly.", $.callingFrom, $.addToVariables, $.line, null, $.file)
             }
         } else if (parseFunction(after)[0] == "{") {
             if ($checkBrackets(after)) {
                 console.log(JSON.parse(parseFunction(after)))
             } else {
-                handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
+                handleCommand("SyntaxError log function not opened and closed properly.", $.callingFrom, $.addToVariables, $.line, null, $.file)
             }
         } else if ( // is a variable/int
             getVariable(parseFunction(after), $.callingFrom, $.file) || 
@@ -47,12 +47,12 @@ createCmdFromFile("log", false, function ($) {
                     }
                 }
             } else {
-                handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
+                handleCommand("SyntaxError log function not opened and closed properly.", $.callingFrom, $.addToVariables, $.line, null, $.file)
             }
         } else {
             handleCommand("SyntaxError log type not recognized.", $.callingFrom, $.addToVariables, $.line)
         }
     } else {
-        handleCommand("SyntaxError brakets were not closed properly for log function.", $.callingFrom, $.addToVariables, $.line)
+        handleCommand("SyntaxError log function not opened and closed properly.", $.callingFrom, $.addToVariables, $.line, null, $.file)
     }
 })

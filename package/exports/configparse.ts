@@ -4,6 +4,7 @@ import * as utility from "../core/utility.js"
 const fs = require('fs')
 const path = require('path')
 
+// interprets the .0aconfig file
 export function configparse () { // config file parsing
     try {
         if (fs.existsSync(path.resolve(process.cwd(), ".0aconfig"))) {
